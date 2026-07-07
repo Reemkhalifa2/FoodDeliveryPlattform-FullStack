@@ -78,11 +78,33 @@
         </div>
 
     </section>
+    
 
-    <div id="errorMessage"></div>
+    
 
     <main class="container restaurant-grid" id="container">
+
+       <!-==========================
+                 Loading
+        =========================== ->
+        <div id="restaurant-container">
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+            </div>
+
+            <p id="message" class="message"></p>
+
+            <div id="restaurants"></div>
+        </div>
+
+        <!-- ===========================
+                 Error
+         =========================== -->
+        <div id="errorMessage"></div>
         
+       <!--===========================
+                  Successful
+         =========================== -->
         <div class="card" id="card">
             <div class="card-image">
                 <span class="badge-open">Open</span>
