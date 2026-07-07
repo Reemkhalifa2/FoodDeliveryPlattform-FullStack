@@ -5,20 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Delivery</title>
     <link href="style\style.css" rel="stylesheet"/>    
+    <link href="style\restaurant.css" rel="stylesheet"/>    
 </head>
 <body>
+
     <header class="header">
         <div class="container">
-            <h1 class="logo">
-                Codeline Eats
-            </h1>
 
-            <input
-                type="text"
-                id="searchInput"
-                class="field"
-                placeholder="Search restaurants..."
-            >
+            <!-- Left -->
+            <div class="header-left">
+                <div class="logo">
+                    <img src="images\burger.png" alt="logo">
+                    <span>CodeLine Eats</span>
+                </div>
+
+                <div class="search-wrapper">
+                    <div class="search-bar">
+                        <img class="search-icon" src="images\search.png">
+                        <input class="search-input" placeholder="Search restaurants...">
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Right -->
+            <div class="header-actions">
+
+                <div class="location-picker">
+                    <img class="action-icon" src="images/pin.png">
+                    <span>Location</span>
+                </div>
+
+                <button class="cart-btn">
+                    <img src="images/shopping-cart.png" alt="shping cart">
+                </button>
+
+            </div>
 
         </div>
     </header>
@@ -59,14 +81,39 @@
 
     <div id="errorMessage"></div>
 
-    <main class="container">
+    <main class="container restaurant-grid" id="container">
+        
+        <div class="card" id="card">
+            <div class="card-image">
+                <span class="badge-open">Open</span>
+            </div>
+            <div class="card-body">
+                <div class="title-row">
+                    <p class="title">Al Boom</p>
+                    <div class="rating">
+                        <img src="images\star.png" alt="star" class="star-icon">
+                        <span>4.6</span>
+                    </div>
+                </div>
 
-        <div id="restaurantContainer" class="restaurant-grid">
+                <span class="badge-category">Arabic</span>
 
+                <div class="stats-row">
+                    <div>
+                        <p class="stat-label">Delivery</p>
+                        <p class="stat-value">0.500</p>
+                    </div>
+                    <div>
+                        <p class="stat-label">Min</p>
+                        <p class="stat-value">2.000</p>
+                    </div>
+                </div>
 
+                <button class="btn-menu">View Menu</button>
+            </div>
         </div>
 
     </main>
     
 </body>
-</html>
+</html> 

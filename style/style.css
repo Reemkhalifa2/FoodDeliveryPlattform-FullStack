@@ -84,12 +84,6 @@ img{
     max-width:100%;
     display:block;
 }
-header{
-    background-color: var(--brand);
-    display: flex;
-    flex-direction: row;
-
-}
 
 a{
     color:inherit;
@@ -215,7 +209,7 @@ p{
 
 .card:hover{
 
-    transform:translateY(-3px);
+    transform:translateX(-3px);
 
     box-shadow:var(--shadow-lg);
 
@@ -229,14 +223,15 @@ p{
 
     display:inline-flex;
     align-items:center;
-
     padding:6px 14px;
-
+    margin: var(--space-2);
+    border: 0px;
     border-radius:var(--radius-pill);
 
     background:var(--brand-tint);
 
     color:var(--brand);
+    font-weight: bold;
 
     cursor:pointer;
 
@@ -467,3 +462,8 @@ p{
     gap:var(--space-4);
 
 }
+
+
+
+
+
