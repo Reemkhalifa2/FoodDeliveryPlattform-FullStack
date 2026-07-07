@@ -1,221 +1,463 @@
-:root {
---brand:#1F4E79; --brand-mid:#2E75B6; --brand-tint:#DEEBF7;
---accent:#C55A11; --success:#548235; --danger:#C0392B;
---ink:#222; --muted:#595959; --surface:#fff; --bg:#F4F7FB;
---space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
---space-5:24px; --space-6:32px; --space-7:48px;
---radius:8px; --radius-sm:6px; --radius-pill:999px;
---shadow:0 1px 3px rgba(0,0,0,.08); --shadow-lg:0 6px 18px rgba(0,0,0,.14);
---fs-cap:12px; --fs-body:14px; --fs-lg:16px; --fs-h3:20px; --fs-h2:26px; --fs-h1:34px;
-}
-* { box-sizing:border-box; } body { margin:0; background:var(--bg);
-color:var(--ink); font:400 var(--fs-body)/1.5 'Inter',system-ui,sans-serif; }
-.container { max-width:1120px; margin-inline:auto; padding-inline:var(--space-4); }
+/* ======================================================
+   DESIGN SYSTEM
+   Food Delivery Platform
+====================================================== */
 
-/* =========================
-   Buttons
-========================= */
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 18px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    transition: 0.3s ease;
-    text-decoration: none;
-}
+/* ======================================================
+   1. DESIGN TOKENS
+====================================================== */
 
-/* Primary Button */
-.btn--primary {
-    background: #2563eb;
-    color: #fff;
-}
+:root{
 
-.btn--primary:hover {
-    background: #1d4ed8; /* Darkens about 8% */
-}
+    /* Colors */
+    --brand:#1F4E79;
+    --brand-mid:#2E75B6;
+    --brand-tint:#DEEBF7;
 
-/* Ghost Button */
-.btn--ghost {
-    background: transparent;
-    border: 1px solid #2563eb;
-    color: #2563eb;
-}
+    --accent:#C55A11;
+    --success:#548235;
+    --danger:#C0392B;
 
-.btn--ghost:hover {
-    background: rgba(37, 99, 235, 0.08);
-}
+    --ink:#222222;
+    --muted:#595959;
 
-/* =========================
-   Card
-========================= */
+    --surface:#FFFFFF;
+    --bg:#F4F7FB;
 
-.card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    transition: .3s ease;
+    /* Typography */
+    --fs-cap:12px;
+    --fs-body:14px;
+    --fs-lg:16px;
+    --fs-h3:20px;
+    --fs-h2:26px;
+    --fs-h1:34px;
+
+    /* Spacing */
+    --space-1:4px;
+    --space-2:8px;
+    --space-3:12px;
+    --space-4:16px;
+    --space-5:24px;
+    --space-6:32px;
+    --space-7:48px;
+
+    /* Radius */
+    --radius:8px;
+    --radius-sm:6px;
+    --radius-pill:999px;
+
+    /* Shadows */
+    --shadow:0 1px 3px rgba(0,0,0,.08);
+    --shadow-lg:0 6px 18px rgba(0,0,0,.14);
+
 }
 
-.card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px rgba(0,0,0,.15);
+/* ======================================================
+   2. GLOBAL RESET
+====================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-/* =========================
-   Chip
-========================= */
-
-.chip {
-    display: inline-block;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background: #dbeafe;
-    color: #2563eb;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
+html{
+    scroll-behavior:smooth;
 }
 
-.chip--active {
-    background: #2563eb;
-    color: white;
+body{
+
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:var(--fs-body);
+    line-height:1.5;
+
+    background:var(--bg);
+    color:var(--ink);
+
 }
 
-/* =========================
-   Input Field
-========================= */
-
-.field {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    outline: none;
-    transition: .3s;
+img{
+    max-width:100%;
+    display:block;
 }
 
-.field:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,.25);
+a{
+    color:inherit;
+    text-decoration:none;
 }
 
-/* =========================
-   Badges
-========================= */
-
-.badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
+button,
+input{
+    font:inherit;
 }
 
-.badge--success {
-    background: #dcfce7;
-    color: #15803d;
+ul{
+    list-style:none;
 }
 
-.badge--warning {
-    background: #fef3c7;
-    color: #b45309;
+/* ======================================================
+   3. TYPOGRAPHY
+====================================================== */
+
+h1{
+    font-size:var(--fs-h1);
+    font-weight:700;
 }
 
-.badge--error {
-    background: #fee2e2;
-    color: #dc2626;
+h2{
+    font-size:var(--fs-h2);
+    font-weight:700;
 }
 
-.badge--info {
-    background: #dbeafe;
-    color: #2563eb;
+h3{
+    font-size:var(--fs-h3);
+    font-weight:600;
 }
 
-/* =========================
-   Banner / Toast
-========================= */
-
-.banner {
-    width: 100%;
-    padding: 14px 18px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+p{
+    color:var(--muted);
 }
 
-.banner button {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 18px;
+.caption{
+    font-size:var(--fs-cap);
 }
 
-.banner--error {
-    background: #fee2e2;
-    color: #991b1b;
+/* ======================================================
+   4. CONTAINER
+====================================================== */
+
+.container{
+
+    width:min(1120px,100%);
+    margin:auto;
+    padding-inline:var(--space-4);
+
 }
 
-.banner--info {
-    background: #dbeafe;
-    color: #1e40af;
+/* ======================================================
+   5. BUTTONS
+====================================================== */
+
+.btn{
+
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:10px 18px;
+
+    border:none;
+    border-radius:var(--radius-sm);
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    transition:.3s;
+
 }
 
-/* =========================
-   Skeleton Loader
-========================= */
+.btn--primary{
 
-.skeleton {
-    width: 100%;
-    height: 18px;
-    border-radius: 6px;
-    background: linear-gradient(
+    background:var(--brand);
+    color:white;
+
+}
+
+.btn--primary:hover{
+
+    background:#1b456b;
+
+}
+
+.btn--ghost{
+
+    background:transparent;
+    color:var(--brand);
+
+    border:1px solid var(--brand);
+
+}
+
+.btn--ghost:hover{
+
+    background:var(--brand-tint);
+
+}
+
+/* ======================================================
+   6. CARD
+====================================================== */
+
+.card{
+
+    background:var(--surface);
+
+    padding:16px;
+
+    border-radius:var(--radius);
+
+    box-shadow:var(--shadow);
+
+    transition:.3s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:var(--shadow-lg);
+
+}
+
+/* ======================================================
+   7. CHIP
+====================================================== */
+
+.chip{
+
+    display:inline-flex;
+    align-items:center;
+
+    padding:6px 14px;
+
+    border-radius:var(--radius-pill);
+
+    background:var(--brand-tint);
+
+    color:var(--brand);
+
+    cursor:pointer;
+
+    font-size:13px;
+
+}
+
+.chip--active{
+
+    background:var(--brand);
+
+    color:white;
+
+}
+
+/* ======================================================
+   8. INPUT
+====================================================== */
+
+.field{
+
+    width:100%;
+
+    padding:10px;
+
+    border:1px solid #ccc;
+
+    border-radius:var(--radius-sm);
+
+    outline:none;
+
+    transition:.3s;
+
+}
+
+.field:focus{
+
+    border-color:var(--brand-mid);
+
+    box-shadow:0 0 0 3px rgba(46,117,182,.2);
+
+}
+
+/* ======================================================
+   9. BADGES
+====================================================== */
+
+.badge{
+
+    display:inline-block;
+
+    padding:4px 10px;
+
+    border-radius:var(--radius-pill);
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+.badge--success{
+
+    background:#EAF5E2;
+
+    color:var(--success);
+
+}
+
+.badge--danger{
+
+    background:#FCEAE8;
+
+    color:var(--danger);
+
+}
+
+.badge--accent{
+
+    background:#FBE8DA;
+
+    color:var(--accent);
+
+}
+
+/* ======================================================
+   10. BANNERS
+====================================================== */
+
+.banner{
+
+    width:100%;
+
+    padding:14px 18px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    border-radius:var(--radius);
+
+}
+
+.banner--error{
+
+    background:#fdecea;
+
+    color:var(--danger);
+
+}
+
+.banner--info{
+
+    background:var(--brand-tint);
+
+    color:var(--brand);
+
+}
+
+.banner button{
+
+    background:none;
+    border:none;
+    cursor:pointer;
+    font-size:20px;
+
+}
+
+/* ======================================================
+   11. SKELETON
+====================================================== */
+
+.skeleton{
+
+    height:20px;
+
+    border-radius:var(--radius);
+
+    background:linear-gradient(
         90deg,
-        #e5e7eb 25%,
-        #f3f4f6 50%,
-        #e5e7eb 75%
+        #eeeeee 25%,
+        #f7f7f7 50%,
+        #eeeeee 75%
     );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+
+    background-size:200% 100%;
+
+    animation:loading 1.2s infinite;
+
 }
 
-@keyframes shimmer {
-    from {
-        background-position: 200% 0;
+@keyframes loading{
+
+    from{
+        background-position:200% 0;
     }
-    to {
-        background-position: -200% 0;
+
+    to{
+        background-position:-200% 0;
     }
+
 }
 
-/* =========================
-   Empty State
-========================= */
+/* ======================================================
+   12. EMPTY STATE
+====================================================== */
 
-.empty {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 50px 20px;
-    color: #64748b;
+.empty{
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    gap:var(--space-3);
+
+    padding:var(--space-7);
+
+    text-align:center;
+
+    color:var(--muted);
+
 }
 
-.empty .icon {
-    font-size: 48px;
-    margin-bottom: 12px;
+.empty i{
+
+    font-size:48px;
+
+    color:var(--brand);
+
 }
 
-.empty p {
-    margin-top: 8px;
-    font-size: 15px;
+/* ======================================================
+   13. UTILITIES
+====================================================== */
+
+.text-center{
+    text-align:center;
+}
+
+.mt-4{
+    margin-top:var(--space-4);
+}
+
+.mt-5{
+    margin-top:var(--space-5);
+}
+
+.mb-4{
+    margin-bottom:var(--space-4);
+}
+
+.flex{
+    display:flex;
+}
+
+.flex-between{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+}
+
+.grid{
+
+    display:grid;
+    gap:var(--space-4);
+
 }
