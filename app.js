@@ -1,105 +1,68 @@
-// app.js — Restaurant Browse page logic
+const restaurantContainer = document.getElementById("container");
+const loading = document.getElementById("loading");
+const message = document.getElementById("errorMessage");
 
-import { api, ApiError } from './api.js';
-import { createStateRenderer, runWithState, skeletonCards, emptyState, errorBanner } from './state.js';
+async function getRestarunt() {
 
-const listEl = document.getElementById('restaurantList');
-const searchInput = document.getElementById('searchInput');
-const filterRow = document.getElementById('cuisineFilters');
+    loading.style.display = "flex";
+    message.textContent = "";
+    restaurantContainer.innerHTML = "";
 
-let activeCuisine = '';
-let debounceTimer = null;
+    try {
 
-// ---- Renderer wired to the three UI states ----
-const renderer = createStateRenderer(listEl, {
-  loading: () => skeletonCards(6),
-  ready: (restaurants) => renderRestaurants(restaurants),
-  error: (msg, retry) => errorBanner(msg),
-});
+        const restaurants = await api("/restaurants");
 
-// ---- DTO -> card markup ----
-function restaurantCard(r) {
-  const isOpen = r.acceptingOrders;
-  const rating = r.averageRating != null
-    ? `<span class="r-card__rating">⭐ ${r.averageRating.toFixed(1)}</span>`
-    : '';
+        loading.style.display = "none";
 
-  return `
-    <div class="card r-card">
-      <div class="r-card__image">
-        <span class="badge ${isOpen ? 'badge--open' : 'badge--paused'}">
-          ${isOpen ? 'Open' : 'Paused'}
-        </span>
-      </div>
-      <div class="r-card__body">
-        <div class="r-card__title-row">
-          <span class="r-card__title">${escapeHtml(r.name)}</span>
-          ${rating}
+        if (restaurants.length === 0) {
+            message.textContent = "No restaurants found";
+            return;
+        }
+
+        restaurants.forEach(rest => {
+
+            restaurantContainer.innerHTML += `
+                 <div class="card" id="card">
+            <div class="card-image">
+                <span class="badge ${rest.acceptingOrders ? 'badge-open' : 'badge-closed'}">
+                    ${rest.acceptOrder ? 'Open' : 'Closed'}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="title-row">
+                    <p class="title">${rest.name}</p>
+                    <div class="rating">
+                        <img src="images\star.png" alt="star" class="star-icon">
+                        <span>4.6</span>
+                    </div>
+                </div>
+
+                <span class="badge-category">${rest.acceptingOrders}</span>
+
+                <div class="stats-row">
+                    <div>
+                        <p class="stat-label">Delivery</p>
+                        <p class="stat-value">${rest.deliveryFee}</p>
+                    </div>
+                    <div>
+                        <p class="stat-label">Min</p>
+                        <p class="stat-value">${rest.minOrderAmount}</p>
+                    </div>
+                </div>
+
+                <button class="btn-menu">View Menu</button>
+            </div>
         </div>
-        <span class="badge badge--cuisine">${escapeHtml(r.cuisineType)}</span>
-        <div class="r-card__meta">
-          <div>
-            <p class="r-card__meta-label">Delivery</p>
-            <p class="r-card__meta-value">${Number(r.deliveryFee).toFixed(3)} OMR</p>
-          </div>
-          <div>
-            <p class="r-card__meta-label">Min order</p>
-            <p class="r-card__meta-value">${Number(r.minOrderAmount).toFixed(3)} OMR</p>
-          </div>
-        </div>
-        <a href="menu.html?restaurantId=${r.id}">
-          <button class="btn btn--primary btn--block" ${isOpen ? '' : 'disabled'}>
-            View Menu
-          </button>
-        </a>
-      </div>
-    </div>`;
+            `;
+        });
+
+    } catch (error) {
+
+        loading.style.display = "none";
+        message.textContent = error.message;
+
+        console.error(error);
+    }
 }
 
-function renderRestaurants(restaurants) {
-  if (!restaurants || restaurants.length === 0) {
-    return emptyState('No restaurants match your search');
-  }
-  return `<div class="restaurant-grid">${restaurants.map(restaurantCard).join('')}</div>`;
-}
-
-function escapeHtml(str = '') {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-// ---- Data loading ----
-function loadRestaurants({ cuisine = '', search = '' } = {}) {
-  runWithState(renderer, async () => {
-    let path = '/restaurants';
-    if (cuisine) path = `/restaurants/cuisine/${encodeURIComponent(cuisine)}`;
-    else if (search) path = `/restaurants/search?name=${encodeURIComponent(search)}`;
-
-    return api(path);
-  });
-}
-
-// ---- Search input (debounced) ----
-searchInput.addEventListener('input', (e) => {
-  const value = e.target.value.trim();
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    loadRestaurants({ cuisine: activeCuisine, search: value });
-  }, 300);
-});
-
-// ---- Cuisine chips ----
-filterRow.addEventListener('click', (e) => {
-  const chip = e.target.closest('.chip');
-  if (!chip) return;
-
-  filterRow.querySelectorAll('.chip').forEach((c) => c.classList.remove('chip--active'));
-  chip.classList.add('chip--active');
-
-  activeCuisine = chip.dataset.cuisine;
-  loadRestaurants({ cuisine: activeCuisine, search: searchInput.value.trim() });
-});
-
-// ---- Initial load ----
-loadRestaurants();
+getRestarunt();
