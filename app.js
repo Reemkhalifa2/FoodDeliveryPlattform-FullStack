@@ -32,12 +32,12 @@ async function getRestarunt() {
                 <div class="title-row">
                     <p class="title">${rest.name}</p>
                     <div class="rating">
-                        <img src="images\star.png" alt="star" class="star-icon">
+                        <img src="images/star.png" alt="star" class="star-icon">
                         <span>4.6</span>
                     </div>
                 </div>
 
-                <span class="badge-category">${rest.acceptingOrders}</span>
+                <span class="badge-category">${rest.cuisineType}</span>
 
                 <div class="stats-row">
                     <div>
@@ -50,7 +50,7 @@ async function getRestarunt() {
                     </div>
                 </div>
 
-                <button class="btn-menu">View Menu</button>
+                <button class="btn-menu" id="menu">View Menu</button>
             </div>
         </div>
             `;
