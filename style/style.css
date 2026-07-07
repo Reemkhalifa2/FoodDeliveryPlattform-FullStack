@@ -84,6 +84,12 @@ img{
     max-width:100%;
     display:block;
 }
+header{
+    background-color: var(--brand);
+    display: flex;
+    flex-direction: row;
+
+}
 
 a{
     color:inherit;
