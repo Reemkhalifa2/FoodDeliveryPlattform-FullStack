@@ -1,3 +1,7 @@
+// ==============================================================================================
+//                              Resturant JS
+// ==============================================================================================
+
 const restaurantContainer = document.getElementById("container");
 const loading = document.getElementById("loading");
 const message = document.getElementById("errorMessage");
@@ -192,3 +196,153 @@ searchInput.addEventListener("input", () => {
 // Initial Load
 // ================================
 getRestaurant();
+
+
+
+
+// ==============================================================================================
+//                              Resturant JS
+// ==============================================================================================
+
+
+// ==============================================================================================
+//                               Menu JS
+// ==============================================================================================
+
+// ================================
+// Navigate to Menu Page
+// ================================
+restaurantContainer.addEventListener("click", (event) => {
+    const menuBtn = event.target.closest(".btn-menu");
+    if (menuBtn) {
+        const restaurantId = menuBtn.dataset.id;
+        console.log(restaurantId);
+
+        window.location.href = `menu.html?id=${restaurantId}`;
+    }
+
+});
+
+
+const urlParams = new URLSearchParams(window.location.search);
+const restaurantId = urlParams.get('id');
+async function loadRestaurantMenu() {
+    if (!restaurantId) {
+        console.error("No restaurant ID provided in the URL!");
+        return;
+    }
+
+    try {
+        const menuItems = await api(`/restaurants/${id}/menu`);
+        console.log(menuItems);
+
+        const combos = await api(`/restaurants/${id}/combos`);
+        console.log(combos);
+        
+        // Now you can run your displayMenu(menuData) logic here!
+    } catch (error) {
+        showErrorBanner("Failed to load menu");
+        console.error("Failed to load menu:", error);
+    }
+}
+
+
+function displayMenu(menuItems) {
+
+    menuContainer.innerHTML = "";
+
+    if (menuItems.length === 0) {
+        menuContainer.innerHTML = "<p>No menu items found</p>";
+        return;
+    }
+
+    menuItems.forEach(item => {
+
+        menuContainer.innerHTML += `
+
+        <div class="menu-card">
+
+            <h3>${item.name}</h3>
+
+            <p>${item.description ?? ""}</p>
+
+            <strong>
+                ${item.price} OMR
+            </strong>
+
+            <button 
+                class="btn-menu add-cart"
+                data-id="${item.id}">
+                Add
+            </button>
+
+        </div>
+
+        `;
+    });
+
+
+    // Use the class here
+    document.querySelectorAll(".add-cart").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            const itemId = button.dataset.id;
+
+            console.log("Add item:", itemId);
+
+            // call your add to cart function here
+            // addToCart(itemId);
+
+        });
+
+    });
+}
+
+
+
+
+function displayCombos(combos){
+
+
+    comboContainer.innerHTML = "";
+
+
+    combos.forEach(combo => {
+
+
+        comboContainer.innerHTML += `
+
+
+        <div class="menu-card">
+
+
+            <h3>
+                ${combo.name}
+            </h3>
+
+
+            <p>
+                ${combo.description ?? ""}
+            </p>
+
+
+            <strong>
+                ${combo.price} OMR
+            </strong>
+
+
+        </div>
+
+
+        `;
+
+
+    });
+
+
+}
+
+
+
+loadRestaurantMenu();
