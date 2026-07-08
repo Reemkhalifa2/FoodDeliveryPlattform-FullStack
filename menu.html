@@ -3,60 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeLine Eats</title>
-    <link href="style/style.css" rel="stylesheet"/>    
-    <link href="style/restaurant.css" rel="stylesheet"/>    
+    <title>CodeLine Eats|Menu</title>
+
+    <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="style/menu.css">
 </head>
+
 <body>
+
+    <!-- ==========================
+            Header
+    =========================== -->
 
     <header class="header">
         <div class="container">
 
-            <!-- Left -->
             <div class="header-left">
+
                 <div class="logo">
-                    <img src="images\burger.png" alt="logo">
+                    <img src="images/burger.png" alt="logo">
                     <span>CodeLine Eats</span>
                 </div>
 
-                <div class="search-wrapper">
-                    <div class="search-bar">
-                        <img class="search-icon" src="images\search.png">
-                        <input class="search-input" id="searchInput" placeholder="Search restaurants...">
-                    </div>
-                </div>
             </div>
 
-
-            <!-- Right -->
             <div class="header-actions">
 
                 <div class="location-picker">
-                    <img class="action-icon" src="images/pin.png">
+                    <img src="images/pin.png" class="action-icon">
                     <span>Location</span>
                 </div>
 
-                <button class="cart-btn">
-                    <img src="images/shopping-cart.png" alt="shping cart">
+                <button class="cart-btn" id="mobileCartBtn">
+                    <img src="images/shopping-cart.png">
                 </button>
 
             </div>
 
         </div>
     </header>
-  </p>
 
-            <p>
-                <strong>Total</strong>
-                <strong id="total">2.800 OMR</strong>
-            </p>
 
-            <button id="placeOrderBtn" class="btn-menu">
-                Place Order
+    <!-- ==========================
+            Main
+    =========================== -->
+
+    <main class="container menu-layout">
+
+        <!-- ======================
+                MENU
+        ======================= -->
+
+        <section class="menu-section">
+
+            <div class="restaurant-info">
+
+                <h2 id="restaurantName">
+                    Restaurant Name
+                </h2>
+
+                <p id="restaurantCuisine">
+                    Italian Cuisine
+                </p>
+
+            </div>
+
+
+            <!-- Combos -->
+
+            <h3 class="section-title">
+                Combos
+            </h3>
+
+            <div id="comboContainer" class="cards-grid">
+
+            </div>
+
+
+            <!-- Menu -->
+
+            <h3 class="section-title">
+                Menu
+            </h3>
+
+            <div id="menuContainer" class="cards-grid">
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ======================
+                CART
+        ======================= -->
+
+        <aside class="cart-sidebar" id="cartSidebar">
+
+            <h2>Your Cart</h2>
+
+            <div id="cartItems">
+
+                <p class="empty-cart">
+                    Your cart is empty.
+                </p>
+
+            </div>
+
+
+            <div class="cart-summary">
+
+                <div class="summary-row">
+
+                    <span>Subtotal</span>
+
+                    <span id="subtotal">
+                        1.000 OMR
+                    </span>
+
+                </div>
+
+
+                <div class="summary-row">
+
+                    <span>Delivery Fee</span>
+
+                    <span id="deliveryFee">
+                        2.000 OMR
+                    </span>
+
+                </div>
+
+
+                <div class="summary-row total-row">
+
+                    <strong>Total</strong>
+
+                    <strong id="total">
+                        3.000 OMR
+                    </strong>
+
+                </div>
+
+
+                <button
+                    class="btn-menu"
+                    id="placeOrderBtn">
+
+                    Place Order
+
+                </button>
+
+            </div>
+
+        </aside>
+
+    </main>
+
+
+    <!-- ==========================
+        Mobile Cart Drawer
+    =========================== -->
+
+    <div class="cart-drawer" id="cartDrawer">
+
+        <div class="drawer-header">
+
+            <h2>Your Cart</h2>
+
+            <button id="closeDrawer">
             </button>
 
         </div>
 
-    </aside>
+        <div id="mobileCartItems">
 
-</main>
+        </div>
+
+        <div class="cart-summary">
+
+            <div class="summary-row">
+
+                <span>Subtotal</span>
+
+                <span id="mobileSubtotal">
+                    1.000 OMR
+                </span>
+
+            </div>
+
+            <div class="summary-row">
+
+                <span>Delivery Fee</span>
+
+                <span id="mobileDeliveryFee">
+                    2.000 OMR
+                </span>
+
+            </div>
+
+            <div class="summary-row total-row">
+
+                <strong>Total</strong>
+
+                <strong id="mobileTotal">
+                    3.000 OMR
+                </strong>
+
+            </div>
+
+            <button class="btn-menu">
+
+                Place Order
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <script type="module" src="app.js"></script>
+
+</body>
+</html>
