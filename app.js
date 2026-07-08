@@ -4,7 +4,11 @@
 
 const restaurantContainer = document.getElementById("container");
 const loading = document.getElementById("loading");
-const message = document.getElementById("errorMessage");
+const message = document.getElementById("errorMessage") || {
+    textContent: "",
+    innerHTML: ""
+};
+
 const searchInput = document.getElementById("searchInput");
 
 let allRestaurants = [];
@@ -164,38 +168,51 @@ chips.forEach(chip => {
 // ================================
 // Search (Backend + 300ms Debounce)
 // ================================
-searchInput.addEventListener("input", () => {
-    clearTimeout(searchTimeout);
+if (searchInput) {
 
-    searchTimeout = setTimeout(async () => {
-        const keyword = searchInput.value.trim();
+    searchInput.addEventListener("input", () => {
 
-        if (keyword === "") {
-            displayRestaurants(allRestaurants);
-            return;
-        }
+        clearTimeout(searchTimeout);
 
-        showLoadingSkeletons();
+        searchTimeout = setTimeout(async () => {
 
-        try {
-            const page = await api(
-                `/restaurants/search?keyword=${encodeURIComponent(keyword)}&page=0&size=10`
-            );
+            const keyword = searchInput.value.trim();
 
-            // Handle backend page structures safely
-            const results = page.content || page; 
-            displayRestaurants(results);
-        } catch (error) {
-            console.error(error);
-            showErrorBanner(`searchInput.dispatchEvent(new Event('input'))`);
-        }
-    }, 300);
-});
+            if (keyword === "") {
+                displayRestaurants(allRestaurants);
+                return;
+            }
 
+            showLoadingSkeletons();
+
+            try {
+
+                const page = await api(
+                    `/restaurants/search?keyword=${encodeURIComponent(keyword)}&page=0&size=10`
+                );
+
+                const results = page.content || page;
+
+                displayRestaurants(results);
+
+            } catch (error) {
+
+                console.error(error);
+                showErrorBanner(`searchInput.dispatchEvent(new Event('input'))`);
+
+            }
+
+        }, 300);
+
+    });
+
+}
 // ================================
 // Initial Load
 // ================================
-getRestaurant();
+if (restaurantContainer) {
+    getRestaurant();
+}
 
 
 
@@ -214,49 +231,84 @@ getRestaurant();
 // ================================
 
 // View Menu
-restaurantContainer.addEventListener("click", (event) => {
-
-    if (event.target.classList.contains("btn-menu")) {
-
-        const restaurantId = event.target.dataset.id;
-
-        window.location.href = `Menu.html?id=${restaurantId}`;
-
-    }
-
-});
 
 
+
+// Get Restaurant ID From URL
 const urlParams = new URLSearchParams(window.location.search);
-const restaurantId = urlParams.get('id');
+const restaurantId = urlParams.get("id");
+
+// Containers
+const menuContainer = document.getElementById("menuContainer");
+const comboContainer = document.getElementById("comboContainer");
+
+// ================================
+// Open Menu Page
+// ================================
+
+if (restaurantContainer) {
+
+    restaurantContainer.addEventListener("click", (event) => {
+
+        if (event.target.classList.contains("btn-menu")) {
+
+            const restaurantId = event.target.dataset.id;
+
+            window.location.href = `Menu.html?id=${restaurantId}`;
+
+        }
+
+    });
+
+}
+
+// ================================
+// Load Restaurant Menu
+// ================================
+
 async function loadRestaurantMenu() {
+
     if (!restaurantId) {
-        console.error("No restaurant ID provided in the URL!");
+        console.error("Restaurant ID not found.");
         return;
     }
 
     try {
-        const menuItems = await api(`/restaurants/${id}/menu`);
-        console.log(menuItems);
 
-        const combos = await api(`/restaurants/${id}/combos`);
-        console.log(combos);
-        
-        // Now you can run your displayMenu(menuData) logic here!
+        const menuItems = await api(`/restaurants/${restaurantId}/menu`);
+        displayMenu(menuItems);
+
+        const combos = await api(`/restaurants/${restaurantId}/combos`);
+        displayCombos(combos);
+
     } catch (error) {
-        showErrorBanner("Failed to load menu");
-        console.error("Failed to load menu:", error);
+
+        console.error(error);
+
+        showErrorBanner("loadRestaurantMenu()");
+
     }
+
 }
 
+// ================================
+// Display Menu
+// ================================
 
 function displayMenu(menuItems) {
 
+    if (!menuContainer) return;
+
     menuContainer.innerHTML = "";
 
-    if (menuItems.length === 0) {
-        menuContainer.innerHTML = "<p>No menu items found</p>";
+    if (!menuItems || menuItems.length === 0) {
+
+        menuContainer.innerHTML = `
+            <p>No menu items found.</p>
+        `;
+
         return;
+
     }
 
     menuItems.forEach(item => {
@@ -269,37 +321,78 @@ function displayMenu(menuItems) {
 
             <p>${item.description ?? ""}</p>
 
-            <strong>
-                ${item.price} OMR
-            </strong>
+            <strong>${item.price} OMR</strong>
 
-            <button 
-                class="btn-menu add-cart"
-                data-id="${item.id}">
+            <button
+                class="add-cart"
+                data-id="${item.id}"
+                data-name="${item.name}"
+                data-price="${item.price}">
                 Add
             </button>
 
         </div>
 
         `;
+
     });
 
-
-    // Use the class here
     document.querySelectorAll(".add-cart").forEach(button => {
 
         button.addEventListener("click", () => {
 
-            const itemId = button.dataset.id;
-
-            console.log("Add item:", itemId);
-
-            // call your add to cart function here
-            // addToCart(itemId);
+            addToCart(
+                Number(button.dataset.id),
+                button.dataset.name,
+                Number(button.dataset.price)
+            );
 
         });
 
     });
+
+}
+
+// ================================
+// Display Combo Meals
+// ================================
+
+function displayCombos(combos) {
+
+    if (!comboContainer) return;
+
+    comboContainer.innerHTML = "";
+
+    if (!combos || combos.length === 0) return;
+
+    combos.forEach(combo => {
+
+        comboContainer.innerHTML += `
+
+        <div class="menu-card">
+
+            <h3>${combo.name}</h3>
+
+            <p>${combo.description ?? ""}</p>
+
+            <strong>${combo.price} OMR</strong>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+// ================================
+// Load Menu Automatically
+// ================================
+
+if (restaurantId) {
+
+    loadRestaurantMenu();
+
 }
 // ========================================================
 // Cart Management System
@@ -367,42 +460,59 @@ function removeItem(id) {
 
 // Update Cart UI
 function updateCartUI() {
+
     const cartItems =
         document.getElementById("cartItems");
+
     let subtotal = 0;
     const deliveryFee = 0.500;
-    if (cartItems) {
-        cartItems.innerHTML = "";
-        if (cart.length === 0) {
-            cartItems.innerHTML = `
 
+
+    if (cartItems) {
+
+        cartItems.innerHTML = "";
+
+
+        if (cart.length === 0) {
+
+            cartItems.innerHTML = `
                 <p class="empty-cart">
                     Your cart is empty.
                 </p>
-
             `;
+
+
         } else {
+
 
             cart.forEach(item => {
 
-                subtotal +=
-                item.price * item.quantity;
+
+                subtotal += item.price * item.quantity;
+
 
                 cartItems.innerHTML += `
+
                 <div class="cart-item">
+
                     <div>
+
                         <p class="cart-item-name">
                             ${item.name}
                         </p>
+
+
                         <p class="cart-item-price">
                             ${(item.price * item.quantity).toFixed(3)} OMR
                         </p>
+
                     </div>
+
 
                     <div class="quantity-control">
 
-                        <button 
-                        onclick="changeQuantity(${item.id}, 'decrease')">
+
+                        <button onclick="changeQuantity(${item.id}, 'decrease')">
                             -
                         </button>
 
@@ -411,12 +521,14 @@ function updateCartUI() {
                             ${item.quantity}
                         </span>
 
-                        <button 
-                        onclick="changeQuantity(${item.id}, 'increase')">
+
+                        <button onclick="changeQuantity(${item.id}, 'increase')">
                             +
                         </button>
 
+
                     </div>
+
 
                 </div>
 
@@ -429,7 +541,9 @@ function updateCartUI() {
 
     } else {
 
+
         cart.forEach(item => {
+
             subtotal += item.price * item.quantity;
 
         });
@@ -438,74 +552,30 @@ function updateCartUI() {
 
 
 
-
-function displayCombos(combos){
-
-
-    comboContainer.innerHTML = "";
-
-
-    combos.forEach(combo => {
-
-
-        comboContainer.innerHTML += `
-
-
-        <div class="menu-card">
-
-
-            <h3>
-                ${combo.name}
-            </h3>
-
-
-            <p>
-                ${combo.description ?? ""}
-            </p>
-
-
-            <strong>
-                ${combo.price} OMR
-            </strong>
-
-
-        </div>
-
-
-        `;
-
-
-    });
-
-
-}
-
-
-
-loadRestaurantMenu();
-
     const total =
-    subtotal > 0
-    ? subtotal + deliveryFee
-    : 0;
+        subtotal > 0
+        ? subtotal + deliveryFee
+        : 0;
+
+
 
     const subtotalElement =
-    document.getElementById("subtotal");
+        document.getElementById("subtotal");
+
 
     const deliveryElement =
-    document.getElementById("deliveryFee");
+        document.getElementById("deliveryFee");
 
 
     const totalElement =
-    document.getElementById("total");
+        document.getElementById("total");
+
 
 
     if (subtotalElement) {
 
-
         subtotalElement.innerText =
         subtotal.toFixed(3) + " OMR";
-
 
     }
 
@@ -513,11 +583,9 @@ loadRestaurantMenu();
 
     if (deliveryElement) {
 
-
         deliveryElement.innerText =
         (subtotal > 0 ? deliveryFee : 0)
         .toFixed(3) + " OMR";
-
 
     }
 
@@ -525,12 +593,9 @@ loadRestaurantMenu();
 
     if (totalElement) {
 
-
         totalElement.innerText =
         total.toFixed(3) + " OMR";
 
-
     }
-
 
 }

@@ -11,186 +11,385 @@
 
 <body>
 
-    <!-- ==========================
-            Main
-    =========================== -->
+   <!-- ==========================
+        Main
+=========================== -->
 
-    <main class="container menu-layout" id="menuContainer">
+<main class="container menu-layout">
+
+
+    <!-- ======================
+            MENU
+    ======================= -->
+
+    <section class="menu-section">
+
+
+        <!-- Restaurant Information -->
+
+        <div class="restaurant-info">
+
+
+            <h2 id="restaurantName">
+                Restaurant Name
+            </h2>
+
+
+            <p id="restaurantCuisine">
+                Cuisine Type
+            </p>
+
+
+        </div>
+
+
+
 
         <!-- ======================
-                MENU
-        ======================= -->
-
-        <section class="menu-section">
-
-            <div class="restaurant-info">
-
-                <h2 id="restaurantName">
-                    Restaurant Name
-                </h2>
-
-                <p id="restaurantCuisine">
-                    Italian Cuisine
-                </p>
-
-            </div>
-
-
-            <!-- Combos -->
-
-            <h3 class="section-title">
                 Combos
-            </h3>
-
-            <div id="comboContainer" class="cards-grid">
-
-            </div>
+        ======================= -->
 
 
-            <!-- Menu -->
+        <h3 class="section-title">
+            Combos
+        </h3>
 
-            <h3 class="section-title">
-                Menu
-            </h3>
 
-            <div id="menuContainer" class="cards-grid">
+        <div 
+        id="comboContainer" 
+        class="cards-grid">
 
-            </div>
 
-        </section>
+            <!-- Combos loaded from API -->
+
+
+        </div>
+
+
 
 
 
         <!-- ======================
-                CART
+                Menu Items
         ======================= -->
 
-        <aside class="cart-sidebar" id="cartSidebar">
 
-            <h2>Your Cart</h2>
-
-            <div id="cartItems">
-
-                <p class="empty-cart">
-                    Your cart is empty.
-                </p>
-
-            </div>
+        <h3 class="section-title">
+            Menu
+        </h3>
 
 
-            <div class="cart-summary">
 
-                <div class="summary-row">
-
-                    <span>Subtotal</span>
-
-                    <span id="subtotal">
-                        0.000 OMR
-                    </span>
-
-                </div>
+        <div 
+        id="menuContainer" 
+        class="cards-grid">
 
 
-                <div class="summary-row">
+            <!-- Menu items loaded from API -->
 
-                    <span>Delivery Fee</span>
-
-                    <span id="deliveryFee">
-                        0.000 OMR
-                    </span>
-
-                </div>
-
-
-                <div class="summary-row total-row">
-
-                    <strong>Total</strong>
-
-                    <strong id="total">
-                        0.000 OMR
-                    </strong>
-
-                </div>
-
-
-                <button
-                    class="btn-menu"
-                    id="placeOrderBtn">
-
-                    Place Order
-
-                </button>
-
-            </div>
-
-        </aside>
-
-    </main>
-
-
-    <!-- ==========================
-        Mobile Cart Drawer
-    =========================== -->
-
-    <div class="cart-drawer" id="cartDrawer">
-
-        <div class="drawer-header">
-
-            <h2>Your Cart</h2>
-
-            <button id="closeDrawer">
-            </button>
 
         </div>
 
-        <div id="mobileCartItems">
+
+
+    </section>
+
+
+
+
+
+    <!-- ======================
+            CART
+    ======================= -->
+
+
+    <aside 
+    class="cart-sidebar" 
+    id="cartSidebar">
+
+
+
+        <h2>
+            Your Cart
+        </h2>
+
+
+
+
+        <div id="cartItems">
+
+
+            <p class="empty-cart">
+
+                Your cart is empty.
+
+            </p>
+
+
 
         </div>
+
+
+
+
+
+
+        <!-- Cart Summary -->
+
 
         <div class="cart-summary">
 
-            <div class="summary-row">
 
-                <span>Subtotal</span>
-
-                <span id="mobileSubtotal">
-                    0.000 OMR
-                </span>
-
-            </div>
 
             <div class="summary-row">
 
-                <span>Delivery Fee</span>
 
-                <span id="mobileDeliveryFee">
-                    0.000 OMR
+                <span>
+                    Subtotal
                 </span>
 
+
+                <span id="subtotal">
+
+                    0.000 OMR
+
+                </span>
+
+
             </div>
+
+
+
+
+
+            <div class="summary-row">
+
+
+                <span>
+                    Delivery Fee
+                </span>
+
+
+
+                <span id="deliveryFee">
+
+                    0.000 OMR
+
+                </span>
+
+
+
+            </div>
+
+
+
+
+
 
             <div class="summary-row total-row">
 
-                <strong>Total</strong>
 
-                <strong id="mobileTotal">
-                    0.000 OMR
+                <strong>
+                    Total
                 </strong>
+
+
+
+                <strong id="total">
+
+                    0.000 OMR
+
+                </strong>
+
+
 
             </div>
 
-            <button class="btn-menu">
+
+
+
+
+
+
+            <button 
+            id="placeOrderBtn"
+            class="btn-menu">
+
 
                 Place Order
 
+
             </button>
+
+
 
         </div>
 
+
+
+
+    </aside>
+
+
+
+</main>
+
+
+
+
+
+
+
+<!-- ==========================
+        Mobile Cart Drawer
+=========================== -->
+
+
+
+<button 
+class="mobile-cart-btn"
+id="openDrawer">
+
+
+    Cart
+
+
+</button>
+
+
+
+
+
+<div 
+class="cart-drawer" 
+id="cartDrawer">
+
+
+
+    <div class="drawer-header">
+
+
+
+        <h2>
+            Your Cart
+        </h2>
+
+
+
+
+        <button 
+        id="closeDrawer">
+
+
+            ×
+
+
+        </button>
+
+
+
     </div>
 
-    <script src="api.js"></script>
-    <script type="module" src="app.js"></script>
+
+
+
+
+
+
+    <div id="mobileCartItems">
+
+
+
+        <p class="empty-cart">
+
+            Your cart is empty.
+
+        </p>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <div class="cart-summary">
+
+
+
+        <div class="summary-row">
+
+
+            <span>
+                Subtotal
+            </span>
+
+
+
+            <span id="mobileSubtotal">
+
+                0.000 OMR
+
+            </span>
+
+
+        </div>
+
+
+
+
+
+
+        <div class="summary-row">
+
+
+            <span>
+                Delivery Fee
+            </span>
+
+
+            <span id="mobileDeliveryFee">
+
+                0.000 OMR
+
+            </span>
+
+
+
+        </div>
+
+
+
+        <div class="summary-row total-row">
+
+
+            <strong>
+                Total
+            </strong>
+
+
+            <strong id="mobileTotal">
+
+                0.000 OMR
+
+            </strong>
+
+
+
+        </div>
+        <button 
+        class="btn-menu">
+            Place Order
+        </button>
+    </div>
+
+</div>
+
+<script src="api.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
