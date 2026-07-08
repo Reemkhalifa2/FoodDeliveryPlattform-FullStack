@@ -1,36 +1,33 @@
 // ==============================================================================================
-//                              Resturant JS
+//                              APP JS (shared across all pages)
 // ==============================================================================================
 
-const restaurantContainer = document.getElementById("container");
-const loading = document.getElementById("loading");
-const message = document.getElementById("errorMessage");
-const searchInput = document.getElementById("searchInput");
+const restaurantContainer = document.getElementById("restaurantContainer");
+const loading             = document.getElementById("loading");
+const message              = document.getElementById("errorMessage");
+const searchInput          = document.getElementById("searchInput");
 
 let allRestaurants = [];
 let searchTimeout;
 
 // ================================
-// UI State Changers
+// UI State Changers (shared)
 // ================================
+function showLoadingSkeletons(container = restaurantContainer, msgEl = message) {
+    if (msgEl) msgEl.textContent = "";
+    if (!container) return;
+    container.innerHTML = "";
 
-// Renders 6-8 animated placeholder skeletons
-function showLoadingSkeletons() {
-    message.textContent = "";
-    restaurantContainer.innerHTML = "";
-    
     let skeletonHTML = "";
     for (let i = 0; i < 8; i++) {
-        skeletonHTML += `
-            <div class="card skeleton-card">
-            </div>
-        `;
+        skeletonHTML += `<div class="card skeleton-card"></div>`;
     }
-    restaurantContainer.innerHTML = skeletonHTML;
+    container.innerHTML = skeletonHTML;
 }
 
-function showEmptyState(text = "No restaurants match your search.") {
-    restaurantContainer.innerHTML = `
+function showEmptyState(text = "No restaurants match your search.", container = restaurantContainer) {
+    if (!container) return;
+    container.innerHTML = `
         <div class="card skeleton-card">
             <img src="images/empty-icon.png" alt="No results" class="empty-icon" onerror="this.style.display='none'">
             <p class="empty-text">${text}</p>
@@ -38,21 +35,20 @@ function showEmptyState(text = "No restaurants match your search.") {
     `;
 }
 
-function showErrorBanner(retryFunctionText) {
-    restaurantContainer.innerHTML = ""; // Clear skeletons
-    message.innerHTML = `
+function showErrorBanner(retryFunctionText, container = restaurantContainer, msgEl = message) {
+    if (container) container.innerHTML = "";
+    if (!msgEl) return;
+    msgEl.innerHTML = `
         <div class="error-banner">
             <span>Failed to load</span>
-            <button class="retry-btn" onclick="${retryFunctionText}">
-                Retry
-            </button>
+            <button class="retry-btn" onclick="${retryFunctionText}">Retry</button>
         </div>
     `;
 }
 
-// ================================
-// Fetch All Restaurants
-// ================================
+// ==============================================================================================
+//                              RESTAURANT LISTING PAGE (index.html)
+// ==============================================================================================
 
 async function getRestaurant() {
     showLoadingSkeletons();
@@ -72,22 +68,17 @@ async function getRestaurant() {
     }
 }
 
-// ================================
-// Display Restaurants
-// ================================
 function displayRestaurants(restaurants) {
-    // Clear skeletons/previous content
-    restaurantContainer.innerHTML = ""; 
-    message.innerHTML = "";
+    if (!restaurantContainer) return;
+    restaurantContainer.innerHTML = "";
+    if (message) message.innerHTML = "";
 
     if (!restaurants || restaurants.length === 0) {
         showEmptyState();
         return;
     }
 
-    // Build HTML string entirely first to optimize DOM performance
     let cardsHTML = "";
-
     restaurants.forEach(rest => {
         cardsHTML += `
         <div class="card">
@@ -104,9 +95,7 @@ function displayRestaurants(restaurants) {
                         <span>4.6</span>
                     </div>
                 </div>
-                <span class="badge-category">
-                    ${rest.cuisineType}
-                </span>
+                <span class="badge-category">${rest.cuisineType}</span>
                 <div class="stats-row">
                     <div>
                         <p class="stat-label">Delivery</p>
@@ -130,407 +119,158 @@ function displayRestaurants(restaurants) {
     restaurantContainer.innerHTML = cardsHTML;
 }
 
-// ================================
-// Cuisine Filter (Backend)
-// ================================
+// Navigate to menu page when a "View Menu" button is clicked.
+// Guarded: restaurantContainer only exists on index.html.
+if (restaurantContainer) {
+    restaurantContainer.addEventListener("click", (e) => {
+        const btn = e.target.closest(".btn-menu");
+        if (!btn) return;
+
+        const restId = btn.dataset.id;
+        window.location.href = `menu.html?restaurantId=${restId}`;
+    });
+}
+
+// Cuisine filter chips — only present on index.html
 const chips = document.querySelectorAll(".chip");
 
-chips.forEach(chip => {
-    chip.addEventListener("click", async () => {
-        chips.forEach(c => c.classList.remove("chip--active"));
-        chip.classList.add("chip--active");
+if (chips.length > 0) {
+    chips.forEach(chip => {
+        chip.addEventListener("click", async () => {
+            chips.forEach(c => c.classList.remove("chip--active"));
+            chip.classList.add("chip--active");
 
-        const cuisine = chip.dataset.cuisine;
-        showLoadingSkeletons();
+            const cuisine = chip.dataset.cuisine;
+            showLoadingSkeletons();
 
-        try {
-            let restaurants;
-            if (cuisine === "All") {
-                restaurants = await api("/restaurants");
-            } else {
-                restaurants = await api(
-                    `/restaurants/cuisine/${encodeURIComponent(cuisine)}`
-                );
+            try {
+                let restaurants;
+                if (cuisine === "All") {
+                    restaurants = await api("/restaurants");
+                } else {
+                    restaurants = await api(`/restaurants/cuisine/${encodeURIComponent(cuisine)}`);
+                }
+                displayRestaurants(restaurants);
+            } catch (error) {
+                console.error(error);
+                showErrorBanner(`document.querySelector('.chip--active').click()`);
+            }
+        });
+    });
+}
+
+// Search — only present on index.html
+if (searchInput) {
+    searchInput.addEventListener("input", () => {
+        clearTimeout(searchTimeout);
+
+        searchTimeout = setTimeout(async () => {
+            const keyword = searchInput.value.trim();
+
+            if (keyword === "") {
+                displayRestaurants(allRestaurants);
+                return;
             }
 
-            displayRestaurants(restaurants);
-        } catch (error) {
-            console.error(error);
-            showErrorBanner(`document.querySelector('.chip--active').click()`);
-        }
+            showLoadingSkeletons();
+
+            try {
+                const page = await api(`/restaurants/search?keyword=${encodeURIComponent(keyword)}&page=0&size=10`);
+                const results = page.content || page;
+                displayRestaurants(results);
+            } catch (error) {
+                console.error(error);
+                showErrorBanner(`searchInput.dispatchEvent(new Event('input'))`);
+            }
+        }, 300);
     });
-});
+}
 
-// ================================
-// Search (Backend + 300ms Debounce)
-// ================================
-searchInput.addEventListener("input", () => {
-    clearTimeout(searchTimeout);
+// ==============================================================================================
+//                              MENU PAGE (menu.html)
+// ==============================================================================================
 
-    searchTimeout = setTimeout(async () => {
-        const keyword = searchInput.value.trim();
+const menuContainer    = document.getElementById("menuContainer");
+const restaurantInfo   = document.getElementById("restaurantInfo");
+const categoryChipsRow = document.getElementById("categoryChips");
 
-        if (keyword === "") {
-            displayRestaurants(allRestaurants);
+const params       = new URLSearchParams(window.location.search);
+const restaurantId = params.get("restaurantId");
+
+let allMenuItems = [];
+
+async function getMenuItems() {
+    if (!restaurantId) {
+        showErrorBanner("getMenuItems()", menuContainer, message);
+        console.error("Missing restaurantId in URL query string.");
+        return;
+    }
+
+    showLoadingSkeletons(menuContainer, message);
+
+    try {
+        allMenuItems = await api(`/restaurants/${restaurantId}/menu`);
+
+        if (!allMenuItems || allMenuItems.length === 0) {
+            showEmptyState("This restaurant has no menu items yet.", menuContainer);
             return;
         }
 
-        showLoadingSkeletons();
-
-        try {
-            const page = await api(
-                `/restaurants/search?keyword=${encodeURIComponent(keyword)}&page=0&size=10`
-            );
-
-            // Handle backend page structures safely
-            const results = page.content || page; 
-            displayRestaurants(results);
-        } catch (error) {
-            console.error(error);
-            showErrorBanner(`searchInput.dispatchEvent(new Event('input'))`);
-        }
-    }, 300);
-});
-
-// ================================
-// Initial Load
-// ================================
-getRestaurant();
-
-
-
-
-// ==============================================================================================
-//                              Resturant JS
-// ==============================================================================================
-
-
-// ==============================================================================================
-//                               Menu JS
-// ==============================================================================================
-
-// ================================
-// Navigate to Menu Page
-// ================================
-
-// View Menu
-restaurantContainer.addEventListener("click", (event) => {
-
-    if (event.target.classList.contains("btn-menu")) {
-
-        const restaurantId = event.target.dataset.id;
-
-        window.location.href = `Menu.html?id=${restaurantId}`;
-
-    }
-
-});
-
-
-const urlParams = new URLSearchParams(window.location.search);
-const restaurantId = urlParams.get('id');
-async function loadRestaurantMenu() {
-    if (!restaurantId) {
-        console.error("No restaurant ID provided in the URL!");
-        return;
-    }
-
-    try {
-        const menuItems = await api(`/restaurants/${id}/menu`);
-        console.log(menuItems);
-
-        const combos = await api(`/restaurants/${id}/combos`);
-        console.log(combos);
-        
-        // Now you can run your displayMenu(menuData) logic here!
+        displayMenuItems(allMenuItems);
     } catch (error) {
-        showErrorBanner("Failed to load menu");
-        console.error("Failed to load menu:", error);
+        console.error(error);
+        showErrorBanner("getMenuItems()", menuContainer, message);
     }
 }
 
-
-function displayMenu(menuItems) {
-
+function displayMenuItems(items) {
+    if (!menuContainer) return;
     menuContainer.innerHTML = "";
+    if (message) message.innerHTML = "";
 
-    if (menuItems.length === 0) {
-        menuContainer.innerHTML = "<p>No menu items found</p>";
+    if (!items || items.length === 0) {
+        showEmptyState(undefined, menuContainer);
         return;
     }
 
-    menuItems.forEach(item => {
+    let cardsHTML = "";
 
-        menuContainer.innerHTML += `
-
-        <div class="menu-card">
-
-            <h3>${item.name}</h3>
-
-            <p>${item.description ?? ""}</p>
-
-            <strong>
-                ${item.price} OMR
-            </strong>
-
-            <button 
-                class="btn-menu add-cart"
-                data-id="${item.id}">
-                Add
-            </button>
-
-        </div>
-
-        `;
-    });
-
-
-    // Use the class here
-    document.querySelectorAll(".add-cart").forEach(button => {
-
-        button.addEventListener("click", () => {
-
-            const itemId = button.dataset.id;
-
-            console.log("Add item:", itemId);
-
-            // call your add to cart function here
-            // addToCart(itemId);
-
-        });
-
-    });
-}
-// ========================================================
-// Cart Management System
-// ========================================================
-
-let cart = [];
-
-// Add item to cart
-function addToCart(id, name, price) {
-
-
-    const existingItem = cart.find(
-        item => item.id === id
-    );
-
-    if (existingItem) {
-        existingItem.quantity += 1;
-
-    } else {
-        cart.push({
-
-            id: id,
-            name: name,
-            price: price,
-            quantity: 1
-
-        });
-    }
-
-
-    updateCartUI();
-
-}
-
-// Increase / Decrease quantity
-function changeQuantity(id, action) {
-    const item = cart.find(
-        item => item.id === id
-    );
-    if (!item) return;
-    if (action === "increase") {
-        item.quantity += 1;
-    }
-    if (action === "decrease") {
-        item.quantity -= 1;
-        if (item.quantity <= 0) {
-            cart = cart.filter(
-                item => item.id !== id
-            );
-        }
-
-    }
-
-    updateCartUI();
-}
-
-// Remove item
-function removeItem(id) {
-    cart = cart.filter(
-        item => item.id !== id
-    );
-
-    updateCartUI();
-}
-
-// Update Cart UI
-function updateCartUI() {
-    const cartItems =
-        document.getElementById("cartItems");
-    let subtotal = 0;
-    const deliveryFee = 0.500;
-    if (cartItems) {
-        cartItems.innerHTML = "";
-        if (cart.length === 0) {
-            cartItems.innerHTML = `
-
-                <p class="empty-cart">
-                    Your cart is empty.
-                </p>
-
-            `;
-        } else {
-
-            cart.forEach(item => {
-
-                subtotal +=
-                item.price * item.quantity;
-
-                cartItems.innerHTML += `
-                <div class="cart-item">
-                    <div>
-                        <p class="cart-item-name">
-                            ${item.name}
-                        </p>
-                        <p class="cart-item-price">
-                            ${(item.price * item.quantity).toFixed(3)} OMR
-                        </p>
-                    </div>
-
-                    <div class="quantity-control">
-
-                        <button 
-                        onclick="changeQuantity(${item.id}, 'decrease')">
-                            -
-                        </button>
-
-
-                        <span>
-                            ${item.quantity}
-                        </span>
-
-                        <button 
-                        onclick="changeQuantity(${item.id}, 'increase')">
-                            +
-                        </button>
-
-                    </div>
-
+    items.forEach(item => {
+        cardsHTML += `
+            <div class="menu-card">
+                <div class="menu-card__image-wrapper">
+                    ${!item.isAvailable ? `<div class="menu-card__unavailable">Unavailable</div>` : ""}
                 </div>
-
-                `;
-
-            });
-
-        }
-
-
-    } else {
-
-        cart.forEach(item => {
-            subtotal += item.price * item.quantity;
-
-        });
-
-    }
-
-
-
-
-function displayCombos(combos){
-
-
-    comboContainer.innerHTML = "";
-
-
-    combos.forEach(combo => {
-
-
-        comboContainer.innerHTML += `
-
-
-        <div class="menu-card">
-
-
-            <h3>
-                ${combo.name}
-            </h3>
-
-
-            <p>
-                ${combo.description ?? ""}
-            </p>
-
-
-            <strong>
-                ${combo.price} OMR
-            </strong>
-
-
-        </div>
-
-
+                <div class="menu-card__body">
+                    <div class="menu-card__top">
+                        <h3 class="menu-card__name">${item.name}</h3>
+                        <span class="menu-card__price">${item.price.toFixed(3)} OMR</span>
+                    </div>
+                    <p class="menu-card__description">${item.description || ""}</p>
+                    <div class="menu-card__footer">
+                        <span class="badge-category">${item.category || ""}</span>
+                        ${item.calories ? `<span class="menu-card__calories">🔥 ${item.calories} cal</span>` : ""}
+                    </div>
+                </div>
+            </div>
         `;
-
-
     });
 
-
+    menuContainer.innerHTML = cardsHTML;
 }
 
+// ==============================================================================================
+//                              PAGE ROUTER — decide what to run
+// ==============================================================================================
+// Only call the page-specific loader that matches elements actually present in the DOM.
+// This is the key fix: previously getRestaurant() and getMenuItems() both ran unconditionally
+// on every page, and getElementById("searchInput") etc. returning null caused
+// "Cannot read properties of null" crashes that halted the rest of the script.
 
-
-loadRestaurantMenu();
-
-    const total =
-    subtotal > 0
-    ? subtotal + deliveryFee
-    : 0;
-
-    const subtotalElement =
-    document.getElementById("subtotal");
-
-    const deliveryElement =
-    document.getElementById("deliveryFee");
-
-
-    const totalElement =
-    document.getElementById("total");
-
-
-    if (subtotalElement) {
-
-
-        subtotalElement.innerText =
-        subtotal.toFixed(3) + " OMR";
-
-
-    }
-
-
-
-    if (deliveryElement) {
-
-
-        deliveryElement.innerText =
-        (subtotal > 0 ? deliveryFee : 0)
-        .toFixed(3) + " OMR";
-
-
-    }
-
-
-
-    if (totalElement) {
-
-
-        totalElement.innerText =
-        total.toFixed(3) + " OMR";
-
-
-    }
-
-
+if (restaurantContainer && searchInput) {
+    // We're on index.html
+    getRestaurant();
+} else if (menuContainer) {
+    // We're on menu.html
+    getMenuItems();
 }
