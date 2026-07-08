@@ -512,3 +512,74 @@ if (restaurantContainer && searchInput) {
     // We're on menu.html
     getMenuItems();
 }
+
+
+
+
+
+const placeOrderBtn = document.querySelector(".place-order-btn");
+
+if (placeOrderBtn) {
+    placeOrderBtn.addEventListener("click", checkout);
+}
+
+async function checkout() {
+
+    if (cart.length === 0) {
+        alert("Your cart is empty.");
+        return;
+    }
+
+    try {
+
+        // Create Order
+        const order = await api(
+            `/orders/customer/${customerId}/restaurant/${restaurantId}`,
+            {
+                method: "POST"
+            }
+        );
+
+        const orderId = order.id;
+
+        // Build List
+        const orderItems = [];
+
+        for (const item of cart) {
+
+            orderItems.push({
+                menuItemId: item.menuItemId,
+                quantity: item.qty,
+                specialInstructions: ""
+            });
+
+        }
+
+        //  Send all items in one request
+        await api(
+            `/orders/${orderId}/items`,
+            {
+                method: "POST",
+                body: orderItems
+            }
+        );
+
+        //  Confirm Order
+        await api(
+            `/orders/${orderId}/confirm`,
+            {
+                method: "PUT"
+            }
+        );
+
+        // Redirect
+        window.location.href = `track.html?orderId=${orderId}`;
+
+    } catch (error) {
+
+        console.error(error);
+        alert(error.message);
+
+    }
+
+}
