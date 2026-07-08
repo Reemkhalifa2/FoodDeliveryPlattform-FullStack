@@ -80,62 +80,29 @@
     </section>
     
 
-    
+    <main class="container restaurant-grid" id="container">
+
+        <div id="errorMessage" class="message"></div>
+        
+        </main>
 
     <main class="container restaurant-grid" id="container">
 
        <!-- ==========================
                  Loading
         =========================== -->
-        <div id="restaurant-container">
+        
 
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-        </div>
-
-        <p id="errorMessage" class="message"></p>
-
-        <div id="restaurants"></div>
-
-    </div>
 
         <!-- ===========================
                  Error
          =========================== -->
-        <div id="errorMessage"></div>
+        <div id="errorMessage" class="message"></div>
         
        <!--===========================
                   Successful
          =========================== -->
-        <div class="card" id="card">
-            <div class="card-image">
-                <span class="badge-open">Open</span>
-            </div>
-            <div class="card-body">
-                <div class="title-row">
-                    <p class="title">Al Boom</p>
-                    <div class="rating">
-                        <img src="images\star.png" alt="star" class="star-icon">
-                        <span>4.6</span>
-                    </div>
-                </div>
-
-                <span class="badge-category">Arabic</span>
-
-                <div class="stats-row">
-                    <div>
-                        <p class="stat-label">Delivery</p>
-                        <p class="stat-value">0.500</p>
-                    </div>
-                    <div>
-                        <p class="stat-label">Min</p>
-                        <p class="stat-value">2.000</p>
-                    </div>
-                </div>
-
-                <button class="btn-menu" id="menu">View Menu</button>
-            </div>
-        </div>
+        
 
     </main>
     <script src="api.js"></script>
