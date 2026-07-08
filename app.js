@@ -193,11 +193,14 @@ if (searchInput) {
 const menuContainer    = document.getElementById("menuContainer");
 const restaurantInfo   = document.getElementById("restaurantInfo");
 const categoryChipsRow = document.getElementById("categoryChips");
-
+const comboContainer = document.getElementById("comboContainer")
 const params       = new URLSearchParams(window.location.search);
 const restaurantId = params.get("restaurantId");
+const minordernotice = document.getElementById("min-order-notice")
 let allMenuItems = [];
+let allComboMeals = []
 let cart = []; // FIX: was {} — cart must be an array
+
 
 async function getMenuItems() {
     if (!restaurantId) {
@@ -210,8 +213,12 @@ async function getMenuItems() {
 
     try {
         allMenuItems = await api(`/restaurants/${restaurantId}/menu`);
+        allComboMeals = await api(`/restaurants/${restaurantId}/combos`);
+        const restaurantProfile = await api(`/restaurants/${restaurantId}`);
 
-        if (!allMenuItems || allMenuItems.length === 0) {
+        displayRestaurantHeader(restaurantProfile);
+
+        if ((!allMenuItems || allMenuItems.length === 0) ) {
             showEmptyState("This restaurant has no menu items yet.", menuContainer);
             return;
         }
@@ -222,9 +229,36 @@ async function getMenuItems() {
         showErrorBanner("getMenuItems()", menuContainer, message);
     }
 }
+function displayRestaurantHeader(profile) {
+    if (!restaurantInfo || !profile) return;
+
+    // Gracefully handle properties if any happen to be missing from the payload
+    const name =  profile.name ;
+    const cuisine = profile.cuisine || "International";
+    const deliveryTime = profile.deliveryTime || "25-35 min";
+    const minOrder = profile.minOrderAmount ? `${Number(profile.minOrderAmount).toFixed(3)} OMR` : "0.000 OMR";
+
+    restaurantInfo.innerHTML = `
+        <button class="back-btn" onclick="history.back()">←</button>
+        <div class="restaurant-header__meta">
+            <h1 class="restaurant-header__title">${name}</h1>
+            <div class="restaurant-header__details">
+                <span>${cuisine}</span> • 
+                <span>${deliveryTime}</span>
+            </div>
+            
+        </div>
+    `;
+    minordernotice.innerHTML=`
+    <div class="restaurant-header__min-order">
+                Min. Order: <strong>${minOrder}</strong>
+            </div>
+    `
+}
 
 function updateUI() {
     displayMenuItems(allMenuItems);
+    displayComboMeals(allComboMeals)
     displayCart();
 }
 
@@ -233,6 +267,24 @@ function updateUI() {
 // ===============================
 if (menuContainer) {
     menuContainer.addEventListener("click", (e) => {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+        console.log(btn);
+        const id = Number(btn.dataset.id);
+        if (btn.classList.contains("add-btn")) {
+            const item = allMenuItems.find(item => item.id === id);
+            if (item) addToCart(item);
+        }
+
+        if (btn.classList.contains("plus")) increaseQuantity(id);
+        if (btn.classList.contains("minus")) decreaseQuantity(id);
+
+        updateUI();
+    });
+}
+
+if (comboContainer) {
+    comboContainer.addEventListener("click", (e) => {
         const btn = e.target.closest("button");
         if (!btn) return;
         console.log(btn);
@@ -351,6 +403,53 @@ function displayMenuItems(items) {
     menuContainer.innerHTML = cardsHTML;
 }
 
+
+function displayComboMeals(items) {
+    if (!comboContainer) return;
+    comboContainer.innerHTML = "";
+    if (message) message.innerHTML = "";
+
+    if (!items || items.length === 0) {
+        showEmptyState(undefined, menuContainer);
+        return;
+    }
+
+    let cardsHTML = "";
+
+    items.forEach(item => {
+        const qty = getQuantity(item.id);
+
+        cardsHTML += `
+        <div class="menu-card">
+            <div class="menu-card__image-wrapper">
+                ${!item.isAvailable ? `<div class="menu-card__unavailable">Unavailable</div>` : ""}
+            </div>
+            <div class="menu-card__body">
+                <div class="menu-card__top">
+                    <h3 class="menu-card__name">${item.comboName}</h3>
+                    <span class="menu-card__price">${item.totalPrice.toFixed(3)} OMR</span>
+                </div>
+                <p class="menu-card__description">${item.description || ""}</p>
+                ${
+                    !item.isAvailable
+                        ? `<button class="add-btn" disabled>Unavailable</button>`
+                        : qty === 0
+                            ? `<button class="add-btn" data-id="${item.id}">Add</button>`
+                            : `
+                            <div class="quantity-controls">
+                                <button class="minus" data-id="${item.id}">-</button>
+                                <span>${qty}</span>
+                                <button class="plus" data-id="${item.id}">+</button>
+                            </div>
+                            `
+                }
+            </div>
+        </div>
+        `;
+    });
+
+    comboContainer.innerHTML = cardsHTML;
+}
 // ===============================
 // DISPLAY CART — FIX: use the correct IDs from your HTML
 // ===============================

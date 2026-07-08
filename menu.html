@@ -3,64 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant Menu</title>
+    <title>Al Boom - Menu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style/style.css">
     <link rel="stylesheet" href="style/menu.css">
+
 </head>
 <body>
 
-    <main class="menuContainer">
-
-        <header class="menu-header">
-            <a href="index.html" class="back-btn">← Back to Restaurants</a>
-            <div id="restaurantInfo" class="restaurant-profile">
-                <h1 id="restaurantName" class="loading-placeholder">Loading Restaurant...</h1>
-                <p id="restaurantMeta"></p>
-            </div>
-        </header>
-
-        <section class="filters-section">
-            <div id="categoryChips" class="chips-container">
+    <div class="app-layout">
+        <main class="main-content">
+            
+            <header id="restaurantInfo" class="restaurant-header">
+                <button class="back-btn" onclick="history.back()">←</button>
+                <div class="restaurant-header__meta">
+                    <h1 class="restaurant-header__title" id="restaurant-name">Al Boom</h1>
+                    <div class="restaurant-header__details" >
+                        <span id="cuisine">Arabic</span> • 
+                        <span class="rating">⭐ 4.6</span> • 
+                        <span>25–35 min</span>
+                    </div>
                 </div>
-        </section>
+            </header>
 
-        <div id="errorMessage"></div>
+            <div id="categoryChips" class="category-chips-row">
+                </div>
 
-        <section id="menuContainer" class="menu-grid">
+            <section class="section-block">
+                <h2 class="section-title">COMBOS</h2>
+                <div id="comboContainer" class="combos-grid">
+                    </div>
             </section>
 
-    </main>
+            <section class="section-block">
+                <h2 class="section-title">MENU</h2>
+                <div id="menuContainer" class="menu-list">
+                    </div>
+            </section>
 
-    <aside class="cart-sidebar">
-        <div class="cart-header">
-            <h3>🛒 Your Cart</h3>
-            <span class="cart-count" id="cart-count">0</span>
-        </div>
+        </main>
 
-        <div class="cart-items" id="cart-items-container">
-            <p class="empty-cart">Your cart is empty.</p>
-        </div>
+        <aside class="cart-sidebar">
+            <div class="cart-card">
+                <div class="cart-card__header">
+                    <div class="cart-card__title">
+                        <svg class="cart-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        <span>Your Cart</span>
+                    </div>
+                    <span id="cart-count" class="cart-count-badge">0</span>
+                </div>
 
-        <div class="cart-summary">
-            <div class="summary-row">
-                <span>Subtotal</span>
-                <span id="subtotal">0.000 OMR</span>
+                <div id="cart-items-container" class="cart-items-list">
+                    </div>
+
+                <hr class="cart-divider">
+
+                <div class="cart-totals">
+                    <div class="totals-row">
+                        <span>Subtotal</span>
+                        <span id="subtotal">0.000 OMR</span>
+                    </div>
+                    <div class="totals-row">
+                        <span>Delivery fee</span>
+                        <span id="delivery-fee">0.500 OMR</span>
+                    </div>
+                    <hr class="cart-divider-light">
+                    <div class="totals-row totals-row--final">
+                        <span>Total</span>
+                        <span id="total-price">0.500 OMR</span>
+                    </div>
+                </div>
+
+                <button class="place-order-btn">Place Order</button>
+                <div class="min-order-notice" id="min-order-notice">
+                    Min order 2.000 OMR met ✓
+                </div>
             </div>
-            <div class="summary-row">
-                <span>Delivery fee</span>
-                <span id="delivery-fee">0.000 OMR</span>
-            </div>
-            <hr>
-            <div class="summary-row total-row">
-                <span>Total</span>
-                <span id="total-price">0.000 OMR</span>
-            </div>
-
-            <button class="place-order-btn">Place Order</button>
-            <p class="min-order-msg" id="min-order-status">Min order 2.000 OMR met ✓</p>
-        </div>
-    </aside>
-
+        </aside>
+    </div>
     <script src="api.js"></script>
     <script src="app.js"></script>
 </body>
