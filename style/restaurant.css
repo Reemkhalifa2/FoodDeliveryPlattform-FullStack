@@ -12,6 +12,10 @@
 
     --ink:#222222;
     --muted:#595959;
+    --gray:#d8d8d8;
+    --light-gray:#b1b1b1;
+
+
 
     --surface:#FFFFFF;
     --bg:#F4F7FB;
@@ -228,6 +232,18 @@ header{
   border-radius: 999px;
 }
 
+.badge-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--gray);
+  color: var(--light-gray);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
 .card-body {
   padding:var(--space-4);
 }
@@ -293,8 +309,21 @@ header{
 
 .btn-menu {
   width: 100%;
-  background: #1b3a5c;
-  color: #ffffff;
+  background: var(--brand);
+  color: var(--surface);
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-close{
+  width: 100%;
+
+background: var(--gray);
+  color: var(--light-gray);
   border: none;
   border-radius: 8px;
   padding: 12px;
