@@ -70,7 +70,7 @@ function displayRestaurants(restaurants) {
 
             <div class="card-image">
 
-                <span class="${rest.acceptingOrders ? "badge-open" : "badge-close"}">
+                <span class="${rest.acceptingOrders ? 'badge-open' : 'badge-close'}">
                     ${rest.acceptingOrders ? "Open" : "Paused"}
                 </span>
 
@@ -174,6 +174,9 @@ chips.forEach(chip => {
 // ================================
 // Search (Backend + 300ms Debounce)
 // ================================
+// ================================
+// Search (Backend + 300ms Debounce)
+// ================================
 searchInput.addEventListener("input", () => {
 
     clearTimeout(searchTimeout);
@@ -185,21 +188,21 @@ searchInput.addEventListener("input", () => {
         try {
 
             if (keyword === "") {
-
                 displayRestaurants(allRestaurants);
                 return;
             }
 
-            await api(
-                 `/restaurants/search?keyword=${encodeURIComponent(keyword)}&page=0&size=10`
+            const page = await api(
+                `/restaurants/search?keyword=${encodeURIComponent(keyword)}&page=0&size=10`
             );
 
-            displayRestaurants(restaurants);
+            displayRestaurants(page.content);
 
         } catch (error) {
 
             console.error(error);
             message.textContent = error.message;
+
         }
 
     }, 300);
