@@ -126,3 +126,12 @@
     font-size: 0.8rem;
     color: var(--text-muted);
 }
+
+.add-btn {
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: inline-block;
+    margin-bottom: 12px;
+}
