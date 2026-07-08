@@ -1,55 +1,54 @@
-:root{
+:root {
 
-    /* Colors */
-    --brand:#1F4E79;
-    --brand-mid:#2E75B6;
-    --brand-tint:#DEEBF7;
+  /* Colors */
+  --brand: #1F4E79;
+  --brand-mid: #2E75B6;
+  --brand-tint: #DEEBF7;
 
-    --accent:#C55A11;
-    --success:#548235;
-    --danger:#C0392B;
+  --accent: #C55A11;
+  --success: #548235;
+  --danger: #C0392B;
 
-    --ink:#222222;
-    --muted:#595959;
-    --gray:#d8d8d8;
-    --light-gray:#b1b1b1;
+  --ink: #222222;
+  --muted: #595959;
+  --gray: #d8d8d8;
+  --light-gray: #b1b1b1;
 
+  --surface: #FFFFFF;
+  --bg: #F4F7FB;
 
+  /* Typography */
+  --fs-cap: 12px;
+  --fs-body: 14px;
+  --fs-lg: 16px;
+  --fs-h3: 20px;
+  --fs-h2: 26px;
+  --fs-h1: 34px;
 
-    --surface:#FFFFFF;
-    --bg:#F4F7FB;
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
 
-    /* Typography */
-    --fs-cap:12px;
-    --fs-body:14px;
-    --fs-lg:16px;
-    --fs-h3:20px;
-    --fs-h2:26px;
-    --fs-h1:34px;
+  /* Radius */
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-pill: 999px;
 
-    /* Spacing */
-    --space-1:4px;
-    --space-2:8px;
-    --space-3:12px;
-    --space-4:16px;
-    --space-5:24px;
-    --space-6:32px;
-    --space-7:48px;
-
-    /* Radius */
-    --radius:8px;
-    --radius-sm:6px;
-    --radius-pill:999px;
-
-    /* Shadows */
-    --shadow:0 1px 3px rgba(0,0,0,.08);
-    --shadow-lg:0 6px 18px rgba(0,0,0,.14);
-
+  /* Shadows */
+  --shadow: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-lg: 0 6px 18px rgba(0,0,0,.14);
 }
 
 /* ======================================================
    MENU PAGE LAYOUT
 ====================================================== */
+
+
 .menu-layout{
 
     display:flex;
@@ -63,6 +62,9 @@
     margin-bottom:var(--space-7);
 
 }
+
+
+
 /* ======================================================
    MENU SECTION
 ====================================================== */
