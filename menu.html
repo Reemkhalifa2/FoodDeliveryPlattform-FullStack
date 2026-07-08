@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restaurant Menu</title>
     <link rel="stylesheet" href="style/style.css">
-        <link rel="stylesheet" href="style/menu.css">
-
+    <link rel="stylesheet" href="style/menu.css">
 </head>
 <body>
 
     <main class="menuContainer">
-        
+
         <header class="menu-header">
             <a href="index.html" class="back-btn">← Back to Restaurants</a>
             <div id="restaurantInfo" class="restaurant-profile">
@@ -29,8 +28,38 @@
 
         <section id="menuContainer" class="menu-grid">
             </section>
-        
+
     </main>
+
+    <aside class="cart-sidebar">
+        <div class="cart-header">
+            <h3>🛒 Your Cart</h3>
+            <span class="cart-count" id="cart-count">0</span>
+        </div>
+
+        <div class="cart-items" id="cart-items-container">
+            <p class="empty-cart">Your cart is empty.</p>
+        </div>
+
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">0.000 OMR</span>
+            </div>
+            <div class="summary-row">
+                <span>Delivery fee</span>
+                <span id="delivery-fee">0.000 OMR</span>
+            </div>
+            <hr>
+            <div class="summary-row total-row">
+                <span>Total</span>
+                <span id="total-price">0.000 OMR</span>
+            </div>
+
+            <button class="place-order-btn">Place Order</button>
+            <p class="min-order-msg" id="min-order-status">Min order 2.000 OMR met ✓</p>
+        </div>
+    </aside>
 
     <script src="api.js"></script>
     <script src="app.js"></script>

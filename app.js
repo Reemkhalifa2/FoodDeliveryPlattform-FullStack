@@ -196,8 +196,8 @@ const categoryChipsRow = document.getElementById("categoryChips");
 
 const params       = new URLSearchParams(window.location.search);
 const restaurantId = params.get("restaurantId");
-
 let allMenuItems = [];
+let cart = []; // FIX: was {} — cart must be an array
 
 async function getMenuItems() {
     if (!restaurantId) {
@@ -216,13 +216,90 @@ async function getMenuItems() {
             return;
         }
 
-        displayMenuItems(allMenuItems);
+        updateUI();
     } catch (error) {
         console.error(error);
         showErrorBanner("getMenuItems()", menuContainer, message);
     }
 }
 
+function updateUI() {
+    displayMenuItems(allMenuItems);
+    displayCart();
+}
+
+// ===============================
+// MENU BUTTON CLICK
+// ===============================
+if (menuContainer) {
+    menuContainer.addEventListener("click", (e) => {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+        console.log(btn);
+        const id = Number(btn.dataset.id);
+        if (btn.classList.contains("add-btn")) {
+            const item = allMenuItems.find(item => item.id === id);
+            if (item) addToCart(item);
+        }
+
+        if (btn.classList.contains("plus")) increaseQuantity(id);
+        if (btn.classList.contains("minus")) decreaseQuantity(id);
+
+        updateUI();
+    });
+}
+
+// ===============================
+// ADD TO CART
+// ===============================
+function addToCart(item) {
+    console.log("ADDING:", item);
+
+    const existingItem = cart.find(
+        cartItem => cartItem.menuItemId === item.id
+    );
+
+    if (existingItem) {
+        existingItem.qty++;
+    } else {
+        cart.push({
+            menuItemId: item.id,
+            name: item.name,
+            unitPrice: item.price,
+            qty: 1
+        });
+    }
+
+    console.log("CART:", cart);
+}
+
+// ===============================
+// INCREASE / DECREASE QUANTITY
+// ===============================
+function increaseQuantity(id) {
+    const item = cart.find(item => item.menuItemId === id);
+    if (item) item.qty++;
+}
+
+function decreaseQuantity(id) {
+    const item = cart.find(item => item.menuItemId === id);
+    if (!item) return;
+
+    item.qty--;
+
+    if (item.qty <= 0) {
+        cart = cart.filter(item => item.menuItemId !== id);
+    }
+}
+
+function getQuantity(id) {
+    const item = cart.find(item => item.menuItemId === id);
+    return item ? item.qty : 0;
+}
+
+// ===============================
+// DISPLAY MENU (single definition — the earlier duplicate was removed)
+// ===============================
 function displayMenuItems(items) {
     if (!menuContainer) return;
     menuContainer.innerHTML = "";
@@ -236,29 +313,91 @@ function displayMenuItems(items) {
     let cardsHTML = "";
 
     items.forEach(item => {
+        const qty = getQuantity(item.id);
+
         cardsHTML += `
-            <div class="menu-card">
-                <div class="menu-card__image-wrapper">
-                    ${!item.isAvailable ? `<div class="menu-card__unavailable">Unavailable</div>` : ""}
-                </div>
-                <div class="menu-card__body">
-                    <div class="menu-card__top">
-                        <h3 class="menu-card__name">${item.name}</h3>
-                        <span class="menu-card__price">${item.price.toFixed(3)} OMR</span>
-                    </div>
-                    <p class="menu-card__description">${item.description || ""}</p>
-                    <div class="menu-card__footer">
-                        <span class="badge-category">${item.category || ""}</span>
-                        ${item.calories ? `<span class="menu-card__calories">🔥 ${item.calories} cal</span>` : ""}
-                    </div>
-                </div>
+        <div class="menu-card">
+            <div class="menu-card__image-wrapper">
+                ${!item.isAvailable ? `<div class="menu-card__unavailable">Unavailable</div>` : ""}
             </div>
+            <div class="menu-card__body">
+                <div class="menu-card__top">
+                    <h3 class="menu-card__name">${item.name}</h3>
+                    <span class="menu-card__price">${item.price.toFixed(3)} OMR</span>
+                </div>
+                <p class="menu-card__description">${item.description || ""}</p>
+                <div class="menu-card__footer">
+                    <span class="badge-category">${item.category || ""}</span>
+                    ${item.calories ? `<span class="menu-card__calories">🔥 ${item.calories} cal</span>` : ""}
+                </div>
+                ${
+                    !item.isAvailable
+                        ? `<button class="add-btn" disabled>Unavailable</button>`
+                        : qty === 0
+                            ? `<button class="add-btn" data-id="${item.id}">Add</button>`
+                            : `
+                            <div class="quantity-controls">
+                                <button class="minus" data-id="${item.id}">-</button>
+                                <span>${qty}</span>
+                                <button class="plus" data-id="${item.id}">+</button>
+                            </div>
+                            `
+                }
+            </div>
+        </div>
         `;
     });
 
     menuContainer.innerHTML = cardsHTML;
 }
 
+// ===============================
+// DISPLAY CART — FIX: use the correct IDs from your HTML
+// ===============================
+function displayCart() {
+    const cartItemsContainer = document.getElementById("cart-items-container"); // was "cartItems"
+    const cartCount = document.getElementById("cart-count");
+
+    if (!cartItemsContainer) return;
+
+    if (cartCount) {
+        cartCount.textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+    }
+
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = `<p class="empty-cart">Your cart is empty.</p>`;
+    } else {
+        cartItemsContainer.innerHTML = "";
+
+        cart.forEach(item => {
+            cartItemsContainer.innerHTML += `
+            <div class="cart-item">
+                <h4>${item.name}</h4>
+                <p>${item.qty} × ${item.unitPrice.toFixed(3)} OMR</p>
+            </div>
+            `;
+        });
+    }
+
+    updateTotals();
+}
+
+// ===============================
+// TOTAL CALCULATION — FIX: match HTML IDs (delivery-fee, total-price)
+// ===============================
+function updateTotals() {
+    let subtotal = 0;
+
+    cart.forEach(item => {
+        subtotal += item.unitPrice * item.qty;
+    });
+
+    const deliveryFee = cart.length > 0 ? 0.5 : 0; // matches your HTML's default 0.500 OMR
+
+    document.getElementById("subtotal").textContent = `${subtotal.toFixed(3)} OMR`;
+    document.getElementById("delivery-fee").textContent = `${deliveryFee.toFixed(3)} OMR`; // was "deliveryFee"
+    document.getElementById("total-price").textContent = `${(subtotal + deliveryFee).toFixed(3)} OMR`; // was "total"
+}
 // ==============================================================================================
 //                              PAGE ROUTER — decide what to run
 // ==============================================================================================
