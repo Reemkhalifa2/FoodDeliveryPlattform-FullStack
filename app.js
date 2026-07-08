@@ -13,8 +13,7 @@ let searchTimeout;
 // ================================
 // UI State Changers (shared)
 // ================================
-function showLoadingSkeletons(container = restaurantContainer, msgEl = message) {
-    if (msgEl) msgEl.textContent = "";
+function showLoadingSkeletons(container, msgEl = message) {
     if (!container) return;
     container.innerHTML = "";
 
@@ -51,7 +50,7 @@ function showErrorBanner(retryFunctionText, container = restaurantContainer, msg
 // ==============================================================================================
 
 async function getRestaurant() {
-    showLoadingSkeletons();
+    showLoadingSkeletons(restaurantContainer);
 
     try {
         allRestaurants = await api("/restaurants");
@@ -209,12 +208,12 @@ async function getMenuItems() {
         return;
     }
 
-    showLoadingSkeletons(menuContainer, message);
+    showLoadingSkeletons(menuContainer);
 
     try {
         allMenuItems = await api(`/restaurants/${restaurantId}/menu`);
         allComboMeals = await api(`/restaurants/${restaurantId}/combos`);
-        const restaurantProfile = await api(`/restaurants/${restaurantId}`);
+        restaurantProfile = await api(`/restaurants/${restaurantId}`);
 
         displayRestaurantHeader(restaurantProfile);
 
@@ -231,6 +230,7 @@ async function getMenuItems() {
 }
 function displayRestaurantHeader(profile) {
     if (!restaurantInfo || !profile) return;
+    showLoadingSkeletons(restaurantInfo);
 
     // Gracefully handle properties if any happen to be missing from the payload
     const name =  profile.name ;
@@ -446,6 +446,40 @@ function displayComboMeals(items) {
     comboContainer.innerHTML = cardsHTML;
 }
 
+function checkMinimumOrder() {
+
+    const placeOrderBtn = document.querySelector(".place-order-btn");
+
+    if (!placeOrderBtn) return;
+
+
+    const subtotal = cart.reduce(
+        (sum, item) => sum + (item.unitPrice * item.qty),
+        0
+    );
+
+
+    const minimumOrder = Number(
+        restaurantProfile?.minOrderAmount || 0
+    );
+
+
+    if (subtotal < minimumOrder) {
+
+        placeOrderBtn.disabled = true;
+        placeOrderBtn.title =
+            `Minimum order is ${minimumOrder.toFixed(3)} OMR`;
+
+    } else {
+
+        placeOrderBtn.disabled = false;
+
+        placeOrderBtn.title = "";
+        
+
+    }
+
+}
 function displayCart() {
     const cartItemsContainer = document.getElementById("cart-items-container"); 
     const cartCount = document.getElementById("cart-count");
@@ -472,6 +506,7 @@ function displayCart() {
     }
 
     updateTotals();
+    checkMinimumOrder();
 }
 
 
@@ -483,7 +518,6 @@ function updateTotals() {
     });
 
     const deliveryFee = cart.length > 0 ? 0.5 : 0; // matches your HTML's default 0.500 OMR
-
     document.getElementById("subtotal").textContent = `${subtotal.toFixed(3)} OMR`;
     document.getElementById("delivery-fee").textContent = `${deliveryFee.toFixed(3)} OMR`; // was "deliveryFee"
     document.getElementById("total-price").textContent = `${(subtotal + deliveryFee).toFixed(3)} OMR`; // was "total"
@@ -517,9 +551,10 @@ async function checkout() {
         return;
     }
 
+
     try {
 
-        const customerId = 2;
+        const customerId = Number(2);
         // Create Order
         const order = await api(
             `/orders/customer/${customerId}/restaurant/${restaurantId}`,
