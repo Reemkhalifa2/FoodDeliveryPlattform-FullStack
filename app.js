@@ -190,8 +190,8 @@ searchInput.addEventListener("input", () => {
                 return;
             }
 
-            const restaurants = await api(
-                `/restaurants/search?name=${encodeURIComponent(keyword)}`
+            await api(
+                 `/restaurants/search?keyword=${encodeURIComponent(keyword)}&page=0&size=10`
             );
 
             displayRestaurants(restaurants);
