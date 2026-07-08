@@ -187,7 +187,7 @@ if (searchInput) {
 }
 
 // ==============================================================================================
-//                              MENU PAGE (menu.html)
+//                              MENU PAGE 
 // ==============================================================================================
 
 const menuContainer    = document.getElementById("menuContainer");
@@ -199,7 +199,7 @@ const restaurantId = params.get("restaurantId");
 const minordernotice = document.getElementById("min-order-notice")
 let allMenuItems = [];
 let allComboMeals = []
-let cart = []; // FIX: was {} — cart must be an array
+let cart = [];
 
 
 async function getMenuItems() {
@@ -325,9 +325,6 @@ function addToCart(item) {
     console.log("CART:", cart);
 }
 
-// ===============================
-// INCREASE / DECREASE QUANTITY
-// ===============================
 function increaseQuantity(id) {
     const item = cart.find(item => item.menuItemId === id);
     if (item) item.qty++;
@@ -349,9 +346,7 @@ function getQuantity(id) {
     return item ? item.qty : 0;
 }
 
-// ===============================
-// DISPLAY MENU (single definition — the earlier duplicate was removed)
-// ===============================
+
 function displayMenuItems(items) {
     if (!menuContainer) return;
     menuContainer.innerHTML = "";
@@ -450,11 +445,9 @@ function displayComboMeals(items) {
 
     comboContainer.innerHTML = cardsHTML;
 }
-// ===============================
-// DISPLAY CART — FIX: use the correct IDs from your HTML
-// ===============================
+
 function displayCart() {
-    const cartItemsContainer = document.getElementById("cart-items-container"); // was "cartItems"
+    const cartItemsContainer = document.getElementById("cart-items-container"); 
     const cartCount = document.getElementById("cart-count");
 
     if (!cartItemsContainer) return;
@@ -481,9 +474,7 @@ function displayCart() {
     updateTotals();
 }
 
-// ===============================
-// TOTAL CALCULATION — FIX: match HTML IDs (delivery-fee, total-price)
-// ===============================
+
 function updateTotals() {
     let subtotal = 0;
 
@@ -497,16 +488,9 @@ function updateTotals() {
     document.getElementById("delivery-fee").textContent = `${deliveryFee.toFixed(3)} OMR`; // was "deliveryFee"
     document.getElementById("total-price").textContent = `${(subtotal + deliveryFee).toFixed(3)} OMR`; // was "total"
 }
-// ==============================================================================================
-//                              PAGE ROUTER — decide what to run
-// ==============================================================================================
-// Only call the page-specific loader that matches elements actually present in the DOM.
-// This is the key fix: previously getRestaurant() and getMenuItems() both ran unconditionally
-// on every page, and getElementById("searchInput") etc. returning null caused
-// "Cannot read properties of null" crashes that halted the rest of the script.
+
 
 if (restaurantContainer && searchInput) {
-    // We're on index.html
     getRestaurant();
 } else if (menuContainer) {
     // We're on menu.html
@@ -515,6 +499,9 @@ if (restaurantContainer && searchInput) {
 
 
 
+// ==============================================================================================
+//                              ORDER PAGE 
+// ==============================================================================================
 
 
 const placeOrderBtn = document.querySelector(".place-order-btn");
@@ -532,6 +519,7 @@ async function checkout() {
 
     try {
 
+        const customerId = 2;
         // Create Order
         const order = await api(
             `/orders/customer/${customerId}/restaurant/${restaurantId}`,
@@ -554,6 +542,7 @@ async function checkout() {
             });
 
         }
+        console.log(orderItems);
 
         //  Send all items in one request
         await api(
