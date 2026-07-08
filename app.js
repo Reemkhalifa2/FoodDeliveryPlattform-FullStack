@@ -212,13 +212,16 @@ getRestaurant();
 // ================================
 // Navigate to Menu Page
 // ================================
-restaurantContainer.addEventListener("click", (event) => {
-    const menuBtn = event.target.closest(".btn-menu");
-    if (menuBtn) {
-        const restaurantId = menuBtn.dataset.id;
-        console.log(restaurantId);
 
-        window.location.href = `menu.html?id=${restaurantId}`;
+// View Menu
+restaurantContainer.addEventListener("click", (event) => {
+
+    if (event.target.classList.contains("btn-menu")) {
+
+        const restaurantId = event.target.dataset.id;
+
+        window.location.href = `Menu.html?id=${restaurantId}`;
+
     }
 
 });
@@ -298,6 +301,140 @@ function displayMenu(menuItems) {
 
     });
 }
+// ========================================================
+// Cart Management System
+// ========================================================
+
+let cart = [];
+
+// Add item to cart
+function addToCart(id, name, price) {
+
+
+    const existingItem = cart.find(
+        item => item.id === id
+    );
+
+    if (existingItem) {
+        existingItem.quantity += 1;
+
+    } else {
+        cart.push({
+
+            id: id,
+            name: name,
+            price: price,
+            quantity: 1
+
+        });
+    }
+
+
+    updateCartUI();
+
+}
+
+// Increase / Decrease quantity
+function changeQuantity(id, action) {
+    const item = cart.find(
+        item => item.id === id
+    );
+    if (!item) return;
+    if (action === "increase") {
+        item.quantity += 1;
+    }
+    if (action === "decrease") {
+        item.quantity -= 1;
+        if (item.quantity <= 0) {
+            cart = cart.filter(
+                item => item.id !== id
+            );
+        }
+
+    }
+
+    updateCartUI();
+}
+
+// Remove item
+function removeItem(id) {
+    cart = cart.filter(
+        item => item.id !== id
+    );
+
+    updateCartUI();
+}
+
+// Update Cart UI
+function updateCartUI() {
+    const cartItems =
+        document.getElementById("cartItems");
+    let subtotal = 0;
+    const deliveryFee = 0.500;
+    if (cartItems) {
+        cartItems.innerHTML = "";
+        if (cart.length === 0) {
+            cartItems.innerHTML = `
+
+                <p class="empty-cart">
+                    Your cart is empty.
+                </p>
+
+            `;
+        } else {
+
+            cart.forEach(item => {
+
+                subtotal +=
+                item.price * item.quantity;
+
+                cartItems.innerHTML += `
+                <div class="cart-item">
+                    <div>
+                        <p class="cart-item-name">
+                            ${item.name}
+                        </p>
+                        <p class="cart-item-price">
+                            ${(item.price * item.quantity).toFixed(3)} OMR
+                        </p>
+                    </div>
+
+                    <div class="quantity-control">
+
+                        <button 
+                        onclick="changeQuantity(${item.id}, 'decrease')">
+                            -
+                        </button>
+
+
+                        <span>
+                            ${item.quantity}
+                        </span>
+
+                        <button 
+                        onclick="changeQuantity(${item.id}, 'increase')">
+                            +
+                        </button>
+
+                    </div>
+
+                </div>
+
+                `;
+
+            });
+
+        }
+
+
+    } else {
+
+        cart.forEach(item => {
+            subtotal += item.price * item.quantity;
+
+        });
+
+    }
 
 
 
@@ -346,3 +483,54 @@ function displayCombos(combos){
 
 
 loadRestaurantMenu();
+
+    const total =
+    subtotal > 0
+    ? subtotal + deliveryFee
+    : 0;
+
+    const subtotalElement =
+    document.getElementById("subtotal");
+
+    const deliveryElement =
+    document.getElementById("deliveryFee");
+
+
+    const totalElement =
+    document.getElementById("total");
+
+
+    if (subtotalElement) {
+
+
+        subtotalElement.innerText =
+        subtotal.toFixed(3) + " OMR";
+
+
+    }
+
+
+
+    if (deliveryElement) {
+
+
+        deliveryElement.innerText =
+        (subtotal > 0 ? deliveryFee : 0)
+        .toFixed(3) + " OMR";
+
+
+    }
+
+
+
+    if (totalElement) {
+
+
+        totalElement.innerText =
+        total.toFixed(3) + " OMR";
+
+
+    }
+
+
+}
