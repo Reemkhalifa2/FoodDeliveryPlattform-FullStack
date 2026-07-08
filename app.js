@@ -233,10 +233,10 @@ function updateUI() {
 // ===============================
 if (menuContainer) {
     menuContainer.addEventListener("click", (e) => {
-        const btn = e.target.closest(".add-btn");
+        const btn = e.target.closest("button");
         if (!btn) return;
-
-        git 
+        console.log(btn);
+        const id = Number(btn.dataset.id);
         if (btn.classList.contains("add-btn")) {
             const item = allMenuItems.find(item => item.id === id);
             if (item) addToCart(item);
@@ -253,7 +253,11 @@ if (menuContainer) {
 // ADD TO CART
 // ===============================
 function addToCart(item) {
-    const existingItem = cart.find(cartItem => cartItem.menuItemId === item.id);
+    console.log("ADDING:", item);
+
+    const existingItem = cart.find(
+        cartItem => cartItem.menuItemId === item.id
+    );
 
     if (existingItem) {
         existingItem.qty++;
@@ -265,6 +269,8 @@ function addToCart(item) {
             qty: 1
         });
     }
+
+    console.log("CART:", cart);
 }
 
 // ===============================
