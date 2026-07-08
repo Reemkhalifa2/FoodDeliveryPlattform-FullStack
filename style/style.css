@@ -399,29 +399,42 @@ p{
    12. EMPTY STATE
 ====================================================== */
 
-.empty{
-
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-
-    gap:var(--space-3);
-
-    padding:var(--space-7);
-
-    text-align:center;
-
-    color:var(--muted);
-
+/* Make sure error banners and empty states span full-width across the grid columns */
+.error-wrapper, 
+.empty-state {
+    grid-column: 1 / -1; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
 }
 
-.empty i{
+/* Base styles for your error banner */
+.error-banner {
+    background-color: #fef2f2;
+    border: 1px solid #fee2e2;
+    color: #991b1b;
+    padding: 16px 24px;
+    border-radius: var(--radius, 8px);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
 
-    font-size:48px;
+.retry-btn {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
 
-    color:var(--brand);
-
+.retry-btn:hover {
+    background-color: #b91c1c;
 }
 
 /* ======================================================

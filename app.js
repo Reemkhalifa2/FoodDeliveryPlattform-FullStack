@@ -27,7 +27,7 @@ function showLoadingSkeletons() {
 
 function showEmptyState(text = "No restaurants match your search.") {
     restaurantContainer.innerHTML = `
-        <div class="empty-state">
+        <div class="card skeleton-card">
             <img src="images/empty-icon.png" alt="No results" class="empty-icon" onerror="this.style.display='none'">
             <p class="empty-text">${text}</p>
         </div>
@@ -38,7 +38,7 @@ function showErrorBanner(retryFunctionText) {
     restaurantContainer.innerHTML = ""; // Clear skeletons
     message.innerHTML = `
         <div class="error-banner">
-            <span>Failed to load restaurants.</span>
+            <span>Failed to load</span>
             <button class="retry-btn" onclick="${retryFunctionText}">
                 Retry
             </button>
