@@ -566,18 +566,21 @@ async function checkout() {
         const orderId = order.id;
 
         // Build List
+
         const orderItems = [];
         for (const item of cart) {
             console.log("Checking cart item mapping:", item);
             orderItems.push({
-                menuItemId: Number(item.id),
-                quantity: item.quantity,
+                menuItemId:Number(item.menuItemId),
+                quantity: Number(item.qty),
                 specialInstructions: ""
             });
         }
 
-console.log("Sending items:", orderItems);
+        
         // Send all items in one request
+        console.log(orderItems)
+
         await api(
             `/orders/${orderId}/items`,
             {
@@ -594,6 +597,7 @@ console.log("Sending items:", orderItems);
         );
 
         // Confirm Order
+        
         await api(
             `/orders/${orderId}/confirm`,
             {
@@ -664,8 +668,11 @@ async function loadOrder() {
         ]);
 
         order = orderData;
+        console.log(order);
         timeline = timelineData;
         eta = etaData;
+        console.log(eta);
+
 
         renderOrder();
 
@@ -683,8 +690,9 @@ async function loadOrder() {
  */
 function renderOrder() {
     // Basic Details
-    orderNumberNode.textContent = `Order ${order.orderCode || orderId}`;
-    restaurantNameNode.textContent = order.restaurant?.name || "Al Boom";
+    console.log(`${order.orderCode}`);
+    orderNumberNode.textContent = `${order.orderCode}`;
+    restaurantNameNode.textContent = `${order.restaurant}`;
 
     // Item Layout & Calculations
     renderItems();
@@ -705,7 +713,7 @@ function renderOrder() {
  */
 function renderItems() {
     orderItemsNode.innerHTML = "";
-
+console.log("Order items:", order.orderItems);
     if (!order.orderItems || order.orderItems.length === 0) return;
 
     order.orderItems.forEach(item => {
@@ -713,8 +721,8 @@ function renderItems() {
         div.className = "item-row";
 
         div.innerHTML = `
-            <span>${item.name || item.menuItemName} ×${item.quantity}</span>
-            <span>${parseFloat(item.unitPrice || item.price).toFixed(3)}</span>
+            <span>${item.name } ×${item.quantity}</span>
+            <span>${parseFloat(item.unitPrice).toFixed(3)}</span>
         `;
 
         orderItemsNode.appendChild(div);
@@ -788,18 +796,37 @@ function renderTimeline() {
 /**
  * Populates Driver profile configurations safely onto dashboard elements
  */
-function renderDriver() {
-    // FIX: Added optional chaining to prevent undefined/null subproperty tracking errors
-    const driver = order.delivery?.deliveryDriver;
-    
-    if (driver) {
-        driverNameNode.textContent = driver.name || driver; 
-        vehicleNode.textContent = driver.vehiclePlate || "A-12345";
-        driverStatusNode.textContent = `Status: ${order.status}`;
-    } else {
+async function renderDriver() {
+
+    try {
+        const delivery = await api(`/deliveries/order/${order.id}`);
+        console.log(delivery);
+        const driver = delivery.responseDTO;
+
+        if (driver) {
+            driverNameNode.textContent =
+                driver.firstName || "Unknown Driver";
+
+            vehicleNode.textContent =
+                driver.vehiclePlate || "A-12345";
+
+            driverStatusNode.textContent =
+                `Status: ${order.status}`;
+
+        } else {
+            driverNameNode.textContent = "Assigning...";
+            vehicleNode.textContent = "Finding nearby driver";
+            driverStatusNode.textContent =
+                `Status: ${order.status}`;
+        }
+
+    } catch (error) {
+        console.error("Error loading driver:", error);
+
         driverNameNode.textContent = "Assigning...";
         vehicleNode.textContent = "Finding nearby driver";
-        driverStatusNode.textContent = `Status: ${order.status}`;
+        driverStatusNode.textContent =
+            `Status: ${order.status}`;
     }
 }
 
@@ -809,36 +836,33 @@ function renderDriver() {
 function startCountdown() {
     clearInterval(countdownInterval);
 
-    if (!eta || !eta.remainingSeconds || order.status.toUpperCase() === "DELIVERED") {
+    if (!eta || order.status.toUpperCase() === "DELIVERED") {
         if (order.status.toUpperCase() === "DELIVERED") {
-            countdownNode.textContent = "00:00";
+            countdownNode.textContent = "Delivered";
         } else {
-            countdownNode.textContent = "--:--";
+            countdownNode.textContent = "-- ";
         }
         return;
     }
 
-    let remainingSeconds = parseInt(eta.remainingSeconds, 10);
+    let remainingMinutes = parseInt(eta, 10);
 
     function updateDisplay() {
-        if (remainingSeconds <= 0) {
+
+        if (remainingMinutes <= 0) {
             clearInterval(countdownInterval);
-            countdownNode.textContent = "00:00";
+            countdownNode.textContent = "Arriving soon";
             return;
         }
 
-        const minutes = Math.floor(remainingSeconds / 60);
-        const seconds = remainingSeconds % 60;
+        countdownNode.textContent = `${remainingMinutes} min`;
 
-        const formattedMinutes = String(minutes).padStart(2, '0');
-        const formattedSeconds = String(seconds).padStart(2, '0');
-
-        countdownNode.textContent = `${formattedMinutes}:${formattedSeconds}`;
-        remainingSeconds--;
+        remainingMinutes--;
     }
 
     updateDisplay();
-    countdownInterval = setInterval(updateDisplay, 1000);
+
+    countdownInterval = setInterval(updateDisplay, 60000); // update every minute
 }
 
 // 4. Initial Trigger Setup
@@ -851,3 +875,235 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("On index/home page: Tracking logic skipped.");
     }
 });
+
+
+
+// ==============================================================================================
+//                              Admin Dashboard Page
+// ==============================================================================================
+ 
+const CONFIG = { BASE_URL: "",
+     RESTAURANT_ID: 1,
+     FIELDS: {
+        summary: {
+            orders: "totalOrders",
+            revenue: "totalRevenue",
+            average: "averageOrder",
+            cancelRate: "cancellationRate",
+            hours: "busiestHours",   
+        },
+        customer: {
+            name: "name",
+            points: "loyaltyPoints",
+        },
+        driver: {
+            name: "name",
+            completed: "completedOrders",
+            rating: "rating",
+        },
+    },
+};
+ 
+// ============================================================
+// Helper functions (admin dashboard)
+// ============================================================
+async function fetchData(url) {
+    const res = await fetch(url);
+    if (!res.ok) {
+        throw new Error(`Request failed (${res.status}): ${url}`);
+    }
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text; 
+    }
+}
+ 
+function formatDate(date) {
+    // yyyy-MM-dd
+    return date.toISOString().split("T")[0];
+}
+ 
+function showAdminError(msg) {
+    const box = document.getElementById("errorMessage");
+    if (!box) return;
+    box.textContent = msg;
+    box.classList.remove("hidden");
+}
+ 
+function hideAdminError() {
+    const box = document.getElementById("errorMessage");
+    if (!box) return;
+    box.classList.add("hidden");
+    box.textContent = "";
+}
+ 
+function get(obj, path, fallback = 0) {
+    return obj && obj[path] !== undefined ? obj[path] : fallback;
+}
+ 
+// ============================================================
+// Render the top summary cards 
+// ============================================================
+function renderSummaryCards(summary) {
+    const f = CONFIG.FIELDS.summary;
+ 
+    document.getElementById("ordersCount").textContent =
+        get(summary, f.orders, 0);
+ 
+    document.getElementById("revenue").textContent =
+        `${get(summary, f.revenue, 0)} OMR`;
+ 
+    document.getElementById("averageOrder").textContent =
+        `${get(summary, f.average, 0)} OMR`;
+ 
+    document.getElementById("cancelRate").textContent =
+        `${get(summary, f.cancelRate, 0)}%`;
+}
+ 
+// ============================================================
+// Render the "Busiest Hours" bar chart
+// ============================================================
+function renderBusiestHours(hoursData) {
+    const container = document.getElementById("hoursChart");
+    container.innerHTML = "";
+ 
+    if (!Array.isArray(hoursData) || hoursData.length === 0) {
+        container.innerHTML = `<p class="empty-state">No data available for this day</p>`;
+        return;
+    }
+ 
+    const maxCount = Math.max(...hoursData.map((h) => h.count || 0));
+ 
+    const chartRow = document.createElement("div");
+    chartRow.style.display = "flex";
+    chartRow.style.alignItems = "flex-end";
+    chartRow.style.gap = "12px";
+    chartRow.style.height = "220px";
+ 
+    hoursData.forEach((h) => {
+        const col = document.createElement("div");
+        col.style.display = "flex";
+        col.style.flexDirection = "column";
+        col.style.alignItems = "center";
+        col.style.justifyContent = "flex-end";
+        col.style.height = "100%";
+ 
+        const barHeight = maxCount > 0 ? (h.count / maxCount) * 180 : 0;
+ 
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        bar.style.height = `${barHeight}px`;
+ 
+        const label = document.createElement("span");
+        label.textContent = h.hour;
+        label.style.marginTop = "6px";
+        label.style.fontSize = "var(--fs-cap)";
+        label.style.color = "var(--muted)";
+ 
+        col.appendChild(bar);
+        col.appendChild(label);
+        chartRow.appendChild(col);
+    });
+ 
+    container.appendChild(chartRow);
+}
+ 
+// ============================================================
+// Render the top loyalty customers list
+// ============================================================
+function renderCustomers(customers) {
+    const f = CONFIG.FIELDS.customer;
+    const container = document.getElementById("customersList");
+    container.innerHTML = "";
+ 
+    if (!Array.isArray(customers) || customers.length === 0) {
+        container.innerHTML = `<p class="empty-state">No customers found</p>`;
+        return;
+    }
+ 
+    customers.forEach((c) => {
+        const row = document.createElement("div");
+        row.className = "customer";
+        row.innerHTML = `
+            <span class="customer-name">${get(c, f.name, "—")}</span>
+            <span class="customer-points">${get(c, f.points, 0)} pts</span>
+        `;
+        container.appendChild(row);
+    });
+}
+ 
+// ============================================================
+// Render the driver leaderboard table
+// ============================================================
+function renderDrivers(drivers) {
+    const f = CONFIG.FIELDS.driver;
+    const tbody = document.getElementById("driverTable");
+    tbody.innerHTML = "";
+ 
+    if (!Array.isArray(drivers) || drivers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3">No drivers found</td></tr>`;
+        return;
+    }
+ 
+    drivers.forEach((d) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${get(d, f.name, "—")}</td>
+            <td>${get(d, f.completed, 0)}</td>
+            <td>⭐ ${get(d, f.rating, 0)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+ 
+// ============================================================
+// Load all dashboard data for a given date
+// ============================================================
+async function loadDashboard(dateStr) {
+    hideAdminError();
+ 
+    try {
+        const [summary, customers, drivers] = await Promise.all([
+            fetchData(
+                `${CONFIG.BASE_URL}/api/reports/platform/daily-summary?date=${dateStr}`
+            ),
+            fetchData(`${CONFIG.BASE_URL}/api/reports/customers/top-loyalty`),
+            fetchData(`${CONFIG.BASE_URL}/api/reports/drivers/leaderboard`),
+        ]);
+ 
+        renderSummaryCards(summary);
+        renderBusiestHours(get(summary, CONFIG.FIELDS.summary.hours, []));
+        renderCustomers(customers);
+        renderDrivers(drivers);
+    } catch (err) {
+        console.error(err);
+        showAdminError(
+            "Could not load dashboard data. Make sure the server is running and the URL is correct."
+        );
+    }
+}
+ 
+// ============================================================
+// Entry point (admin dashboard)
+// ============================================================
+function initAdminDashboard() {
+    const dateInput = document.getElementById("reportDate");
+ 
+    if (!dateInput) return;
+    const today = formatDate(new Date());
+    
+    dateInput.value = today;
+ 
+    loadDashboard(today);
+ 
+    dateInput.addEventListener("change", (e) => {
+        if (e.target.value) {
+            loadDashboard(e.target.value);
+        }
+    });
+}
+ 
+document.addEventListener("DOMContentLoaded", initAdminDashboard);
+

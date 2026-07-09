@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="style/style.css" rel="stylesheet"/>    
+    <link rel="stylesheet" href="style/admin.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+
+    <header class="dashboard-header">
+
+        <div>
+            <h1>Admin Dashboard</h1>
+        </div>
+
+        <div class="date-box">
+    <input 
+        type="date"
+        id="reportDate"
+    >
+</div>
+
+    </header>
+
+    <!-- Summary Cards -->
+
+    <section class="summary-grid">
+
+        <div class="card orders">
+
+            <span class="card-title">Orders</span>
+
+            <h2 id="ordersCount">0</h2>
+
+            <span class="card-footer">Today</span>
+
+        </div>
+
+        <div class="card revenue">
+
+            <span class="card-title">Revenue</span>
+
+            <h2 id="revenue">0 OMR</h2>
+
+            <span class="card-footer">Today's Revenue</span>
+
+        </div>
+
+        <div class="card average">
+
+            <span class="card-title">Average Order</span>
+
+            <h2 id="averageOrder">0 OMR</h2>
+
+            <span class="card-footer">Average Value</span>
+
+        </div>
+
+        <div class="card cancel">
+
+            <span class="card-title">Cancellation Rate</span>
+
+            <h2 id="cancelRate">0%</h2>
+
+            <span class="card-footer">Cancelled Orders</span>
+
+        </div>
+
+    </section>
+
+    <!-- Charts & Customers -->
+
+    <section class="middle-grid">
+
+        <!-- Busiest Hours -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+                <h3>Busiest Hours</h3>
+            </div>
+
+            <div id="hoursChart" class="chart-container"></div>
+
+        </section>
+
+        <!-- Top Customers -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+                <h3>Top Loyalty Customers</h3>
+            </div>
+
+            <div
+                id="customersList"
+                class="customers-list"
+            >
+
+            </div>
+
+        </section>
+
+    </section>
+
+    <!-- Driver Leaderboard -->
+
+    <section class="panel">
+
+        <div class="panel-header">
+            <h3>Driver Leaderboard</h3>
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>DRIVER</th>
+
+                    <th>COMPLETED</th>
+
+                    <th>RATING</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="driverTable">
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+    <!-- Error Message -->
+
+    <div
+        id="errorMessage"
+        class="error-message hidden"
+    >
+
+    </div>
+
+</div>
+
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
