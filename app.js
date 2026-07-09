@@ -363,35 +363,35 @@ function displayMenuItems(items) {
         const qty = getQuantity(item.id);
 
         cardsHTML += `
-        <div class="menu-card">
-            <div class="menu-card__image-wrapper">
-                ${!item.isAvailable ? `<div class="menu-card__unavailable">Unavailable</div>` : ""}
-            </div>
-            <div class="menu-card__body">
-                <div class="menu-card__top">
-                    <h3 class="menu-card__name">${item.name}</h3>
-                    <span class="menu-card__price">${item.price.toFixed(3)} OMR</span>
-                </div>
-                <p class="menu-card__description">${item.description || ""}</p>
-                <div class="menu-card__footer">
-                    <span class="badge-category">${item.category || ""}</span>
-                    ${item.calories ? `<span class="menu-card__calories">🔥 ${item.calories} cal</span>` : ""}
-                </div>
-                ${
-                    !item.isAvailable
-                        ? `<button class="add-btn" disabled>Unavailable</button>`
-                        : qty === 0
-                            ? `<button class="add-btn" data-id="${item.id}">Add</button>`
-                            : `
-                            <div class="quantity-controls">
-                                <button class="minus" data-id="${item.id}">-</button>
-                                <span>${qty}</span>
-                                <button class="plus" data-id="${item.id}">+</button>
-                            </div>
-                            `
-                }
-            </div>
-        </div>
+        <div class="menu-card__body">
+    <div class="menu-card__top">
+        <h3 class="menu-card__name ${!item.isAvailable ? "unavailable-name" : ""}">
+            ${item.name}
+        </h3>
+        <span class="menu-card__price">${item.price.toFixed(3)} OMR</span>
+    </div>
+
+    <p class="menu-card__description">${item.description || ""}</p>
+
+    <div class="menu-card__footer">
+        <span class="badge-category">${item.category || ""}</span>
+        ${item.calories ? `<span class="menu-card__calories">🔥 ${item.calories} cal</span>` : ""}
+    </div>
+
+    ${
+        !item.isAvailable
+            ? `<button class="add-btn" disabled>Sold Out</button>`
+            : qty === 0
+                ? `<button class="add-btn" data-id="${item.id}">Add</button>`
+                : `
+                    <div class="quantity-controls">
+                        <button class="minus" data-id="${item.id}">-</button>
+                        <span>${qty}</span>
+                        <button class="plus" data-id="${item.id}">+</button>
+                    </div>
+                `
+    }
+</div>
         `;
     });
 
