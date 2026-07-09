@@ -363,7 +363,7 @@ function displayMenuItems(items) {
         const qty = getQuantity(item.id);
 
         cardsHTML += `
-        <div class="menu-card__body">
+        <div class="cart-items-list ">
     <div class="menu-card__top">
         <h3 class="menu-card__name ${!item.isAvailable ? "unavailable-name" : ""}">
             ${item.name}
