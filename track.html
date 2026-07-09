@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Tracking</title>
+
+    <link rel="stylesheet" href="style/track.css">
+    <link rel="stylesheet" href="style/style.css">
+
+</head>
+
+<body>
+
+
+<div class="tracking-container">
+
+    <!-- Header -->
+    <section class="tracking-header">
+        <div>
+            <h2 id="orderNumber">Order ORD-4821</h2>
+            <p id="restaurantName">Al Boom</p>
+        </div>
+        <div class="eta-box">
+            <span>Arriving in</span>
+            <h1 id="countdown">14:32</h1>
+        </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="timeline">
+        <div class="step completed" id="pending">
+            <div class="circle"></div>
+            <h4>PENDING</h4>
+            <small id="pendingTime">10:02</small>
+        </div>
+
+        <div class="step current" id="preparing">
+            <div class="circle"></div>
+            <h4>PREPARING</h4>
+            <small id="preparingTime">10:09</small>
+        </div>
+
+        <div class="step" id="ready">
+            <div class="circle"></div>
+            <h4>READY</h4>
+            <small id="readyTime">--</small>
+        </div>
+
+        <div class="step" id="delivered">
+            <div class="circle"></div>
+            <h4>DELIVERED</h4>
+            <small id="deliveredTime">--</small>
+        </div>
+    </section>
+
+    <!-- Details -->
+    <section class="details">
+        
+        <!-- Items Box -->
+        <div class="items-box">
+            <h3>Items</h3>
+            <div id="orderItems">
+                <div class="item-row">
+                    <span>Shawarma ×2</span>
+                    <span>1.000</span>
+                </div>
+                <div class="item-row">
+                    <span>Family Box ×1</span>
+                    <span>3.500</span>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="total-row">
+                <b>Total</b>
+                <strong id="total">5.600 OMR</strong>
+            </div>
+        </div>
+
+        <!-- Driver Box -->
+        <div class="driver-box">
+            <h3>Driver</h3>
+            <div class="driver-info">
+                <div class="avatar"></div>
+                <div>
+                    <h3 id="driverName" style="margin: 0;">Kareem</h3>
+                    <p id="vehicle">A-12345</p>
+                </div>
+            </div>
+            <span class="driver-status" id="driverStatus">Status: Preparing</span>
+        </div>
+
+    </section>
+
+</div>
+
+
+</body>
+</html>

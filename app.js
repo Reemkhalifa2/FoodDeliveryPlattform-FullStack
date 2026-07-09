@@ -416,30 +416,35 @@ function displayComboMeals(items) {
 
         cardsHTML += `
         <div class="menu-card">
-            <div class="menu-card__image-wrapper">
-                ${!item.isAvailable ? `<div class="menu-card__unavailable">Unavailable</div>` : ""}
-            </div>
-            <div class="menu-card__body">
-                <div class="menu-card__top">
-                    <h3 class="menu-card__name">${item.comboName}</h3>
-                    <span class="menu-card__price">${item.totalPrice.toFixed(3)} OMR</span>
-                </div>
-                <p class="menu-card__description">${item.description || ""}</p>
-                ${
-                    !item.isAvailable
-                        ? `<button class="add-btn" disabled>Unavailable</button>`
-                        : qty === 0
-                            ? `<button class="add-btn" data-id="${item.id}">Add</button>`
-                            : `
-                            <div class="quantity-controls">
-                                <button class="minus" data-id="${item.id}">-</button>
-                                <span>${qty}</span>
-                                <button class="plus" data-id="${item.id}">+</button>
-                            </div>
-                            `
-                }
-            </div>
+    <div class="menu-card__image-wrapper">
+        ${!item.isAvailable ? `<div class="menu-card__unavailable">Unavailable</div>` : ""}
+    </div>
+
+    <div class="menu-card__body">
+        <div class="menu-card__top">
+            <h3 class="menu-card__name ${!item.isAvailable ? "unavailable-name" : ""}">
+                ${item.comboName}
+            </h3>
+            <span class="menu-card__price">${item.totalPrice.toFixed(3)} OMR</span>
         </div>
+
+        <p class="menu-card__description">${item.description || ""}</p>
+
+        ${
+            !item.isAvailable
+                ? `<button class="add-btn" disabled>Unavailable</button>`
+                : qty === 0
+                    ? `<button class="add-btn" data-id="${item.id}">Add</button>`
+                    : `
+                        <div class="quantity-controls">
+                            <button class="minus" data-id="${item.id}">-</button>
+                            <span>${qty}</span>
+                            <button class="plus" data-id="${item.id}">+</button>
+                        </div>
+                    `
+        }
+    </div>
+</div>
         `;
     });
 
@@ -532,11 +537,9 @@ if (restaurantContainer && searchInput) {
 }
 
 
-
 // ==============================================================================================
-//                              ORDER PAGE 
+//                               CHECKOUT  
 // ==============================================================================================
-
 
 const placeOrderBtn = document.querySelector(".place-order-btn");
 
@@ -545,15 +548,12 @@ if (placeOrderBtn) {
 }
 
 async function checkout() {
-
     if (cart.length === 0) {
         alert("Your cart is empty.");
         return;
     }
 
-
     try {
-
         const customerId = Number(2);
         // Create Order
         const order = await api(
@@ -567,19 +567,17 @@ async function checkout() {
 
         // Build List
         const orderItems = [];
-
         for (const item of cart) {
-
+            console.log("Checking cart item mapping:", item);
             orderItems.push({
-                menuItemId: item.menuItemId,
-                quantity: item.qty,
+                menuItemId: Number(item.id),
+                quantity: item.quantity,
                 specialInstructions: ""
             });
-
         }
-        console.log(orderItems);
 
-        //  Send all items in one request
+console.log("Sending items:", orderItems);
+        // Send all items in one request
         await api(
             `/orders/${orderId}/items`,
             {
@@ -588,7 +586,14 @@ async function checkout() {
             }
         );
 
-        //  Confirm Order
+        // FIX: Corrected template literal from {orderId} to ${orderId}
+        await api(
+            `/deliveries/order/${orderId}/assign-auto`, {
+                method: "POST",
+            }
+        );
+
+        // Confirm Order
         await api(
             `/orders/${orderId}/confirm`,
             {
@@ -600,10 +605,249 @@ async function checkout() {
         window.location.href = `track.html?orderId=${orderId}`;
 
     } catch (error) {
-
         console.error(error);
         alert(error.message);
+    }
+}
 
+// ==============================================================================================
+//                               ORDER PAGE  
+// ==============================================================================================
+// 1. Parse URL parameters to get the current order ID
+const orderParams = new URLSearchParams(window.location.search);
+const orderId = orderParams.get("orderId");
+
+// 2. Global State Variables
+let order = null;
+let timeline = [];
+let eta = null;
+
+let pollInterval = null;
+let countdownInterval = null;
+
+// 3. DOM Elements Selector
+const orderNumberNode = document.getElementById("orderNumber");
+const restaurantNameNode = document.getElementById("restaurantName");
+const countdownNode = document.getElementById("countdown");
+
+const pendingNode = document.getElementById("pending");
+const preparingNode = document.getElementById("preparing");
+const readyNode = document.getElementById("ready");
+const deliveredNode = document.getElementById("delivered");
+
+const pendingTimeNode = document.getElementById("pendingTime");
+const preparingTimeNode = document.getElementById("preparingTime");
+const readyTimeNode = document.getElementById("readyTime");
+const deliveredTimeNode = document.getElementById("deliveredTime");
+
+const orderItemsNode = document.getElementById("orderItems");
+const totalNode = document.getElementById("total");
+
+const driverNameNode = document.getElementById("driverName");
+const vehicleNode = document.getElementById("vehicle");
+const driverStatusNode = document.getElementById("driverStatus");
+
+/**
+ * Main function to fetch all required order data from the API
+ */
+async function loadOrder() {
+    if (!orderId) {
+        console.error("No orderId found in the URL parameter.");
+        return;
     }
 
+    try {
+        const [orderData, timelineData, etaData] = await Promise.all([
+            api(`/orders/${orderId}`),
+            api(`/orders/${orderId}/timeline`),
+            api(`/orders/${orderId}/eta`)
+        ]);
+
+        order = orderData;
+        timeline = timelineData;
+        eta = etaData;
+
+        renderOrder();
+
+        if (!pollInterval) {
+            pollInterval = setInterval(loadOrder, 10000);
+        }
+
+    } catch (error) {
+        console.error("Error loading order tracking data:", error);
+    }
 }
+
+/**
+ * Main coordinator function to update the dashboard UI components
+ */
+function renderOrder() {
+    // Basic Details
+    orderNumberNode.textContent = `Order ${order.orderCode || orderId}`;
+    restaurantNameNode.textContent = order.restaurant?.name || "Al Boom";
+
+    // Item Layout & Calculations
+    renderItems();
+    renderTotal();
+
+    // Timeline Progression Tracker
+    renderTimeline();
+
+    // Driver Block Details
+    renderDriver();
+
+    // Visual Countdown Engine
+    startCountdown();
+}
+
+/**
+ * Clears and populates item rows to match the strict CSS design structure
+ */
+function renderItems() {
+    orderItemsNode.innerHTML = "";
+
+    if (!order.orderItems || order.orderItems.length === 0) return;
+
+    order.orderItems.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "item-row";
+
+        div.innerHTML = `
+            <span>${item.name || item.menuItemName} ×${item.quantity}</span>
+            <span>${parseFloat(item.unitPrice || item.price).toFixed(3)}</span>
+        `;
+
+        orderItemsNode.appendChild(div);
+    });
+}
+
+/**
+ * Updates the order aggregate total pricing view
+ */
+function renderTotal() {
+    const amount = parseFloat(order.totalPrice || order.totalAmount).toFixed(3);
+    totalNode.textContent = `${amount} OMR`;
+}
+
+/**
+ * Evaluates the status workflow engine, applies structural CSS state variations 
+ * ('completed', 'current'), and injects the corresponding time stamp data.
+ */
+function renderTimeline() {
+    const status = order.status.toUpperCase();
+
+    // Reset helper to clear existing style variations cleanly before fresh rendering cycle
+    const steps = [pendingNode, preparingNode, readyNode, deliveredNode];
+    steps.forEach(step => step.classList.remove("completed", "current"));
+
+    // Extract dynamic milestone times from timeline data payload safely
+    const times = {
+        PENDING: "--",
+        PREPARING: "--",
+        READY: "--",
+        DELIVERED: "--"
+    };
+
+    if (Array.isArray(timeline)) {
+        timeline.forEach(event => {
+            if (times.hasOwnProperty(event.status.toUpperCase())) {
+                times[event.status.toUpperCase()] = event.time; // Format expected: 'HH:MM'
+            }
+        });
+    }
+
+    // Assign text nodes inside timeline steps safely
+    pendingTimeNode.textContent = times.PENDING;
+    preparingTimeNode.textContent = times.PREPARING;
+    readyTimeNode.textContent = times.READY;
+    deliveredTimeNode.textContent = times.DELIVERED;
+
+    // Linear Progression State Engine matching design workflow criteria
+    if (status === "PENDING") {
+        pendingNode.classList.add("current");
+    } else if (status === "PREPARING") {
+        pendingNode.classList.add("completed");
+        preparingNode.classList.add("current");
+    } else if (status === "READY") {
+        pendingNode.classList.add("completed");
+        preparingNode.classList.add("completed");
+        readyNode.classList.add("current");
+    } else if (status === "DELIVERED") {
+        pendingNode.classList.add("completed");
+        preparingNode.classList.add("completed");
+        readyNode.classList.add("completed");
+        deliveredNode.classList.add("current");
+        
+        // Stop real-time polling cycles once order delivery cycle closes fully
+        clearInterval(pollInterval);
+        clearInterval(countdownInterval);
+        countdownNode.textContent = "00:00";
+    }
+}
+
+/**
+ * Populates Driver profile configurations safely onto dashboard elements
+ */
+function renderDriver() {
+    // FIX: Added optional chaining to prevent undefined/null subproperty tracking errors
+    const driver = order.delivery?.deliveryDriver;
+    
+    if (driver) {
+        driverNameNode.textContent = driver.name || driver; 
+        vehicleNode.textContent = driver.vehiclePlate || "A-12345";
+        driverStatusNode.textContent = `Status: ${order.status}`;
+    } else {
+        driverNameNode.textContent = "Assigning...";
+        vehicleNode.textContent = "Finding nearby driver";
+        driverStatusNode.textContent = `Status: ${order.status}`;
+    }
+}
+
+/**
+ * Initializes and loops a real-time tracking standard countdown mechanism (MM:SS)
+ */
+function startCountdown() {
+    clearInterval(countdownInterval);
+
+    if (!eta || !eta.remainingSeconds || order.status.toUpperCase() === "DELIVERED") {
+        if (order.status.toUpperCase() === "DELIVERED") {
+            countdownNode.textContent = "00:00";
+        } else {
+            countdownNode.textContent = "--:--";
+        }
+        return;
+    }
+
+    let remainingSeconds = parseInt(eta.remainingSeconds, 10);
+
+    function updateDisplay() {
+        if (remainingSeconds <= 0) {
+            clearInterval(countdownInterval);
+            countdownNode.textContent = "00:00";
+            return;
+        }
+
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+
+        const formattedMinutes = String(minutes).padStart(2, '0');
+        const formattedSeconds = String(seconds).padStart(2, '0');
+
+        countdownNode.textContent = `${formattedMinutes}:${formattedSeconds}`;
+        remainingSeconds--;
+    }
+
+    updateDisplay();
+    countdownInterval = setInterval(updateDisplay, 1000);
+}
+
+// 4. Initial Trigger Setup
+// 4. Initial Trigger Setup
+document.addEventListener("DOMContentLoaded", () => {
+    // ONLY run tracking logic if an orderId is actually present in the URL
+    if (orderId) {
+        loadOrder();
+    } else {
+        console.log("On index/home page: Tracking logic skipped.");
+    }
+});
