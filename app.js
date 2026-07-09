@@ -1034,7 +1034,7 @@ async function loadRestaurantRevenue() {
         const revenue = await response.text();
 
         revenueElement.innerHTML = `
-            ${revenue}
+            ${Number(revenue).toFixed(3)}
         `;
 
     } catch (error) {
@@ -1119,7 +1119,7 @@ async function loadRestaurantTotalOrders() {
 
         const totalOrders = await response.text();
 
-        totalOrdersElement.innerHTML = totalOrders;
+        totalOrdersElement.innerHTML = Number(totalOrders).toFixed(3);
 
     } catch (error) {
         console.error("Failed to load total restaurant orders:", error);
