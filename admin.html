@@ -38,17 +38,17 @@
 
             <span class="card-title">Orders</span>
 
-            <h2 id="ordersCount">0</h2>
+            <h2 id="restaurant-total-orders">0</h2>
 
             <span class="card-footer">Today</span>
 
         </div>
 
-        <div class="card revenue">
+        <div class="card revenue" id="restaurant-total-orders">
 
             <span class="card-title">Revenue</span>
 
-            <h2 id="revenue">0 OMR</h2>
+            <span id="restaurant-revenue">0.00 OMR</span>
 
             <span class="card-footer">Today's Revenue</span>
 
@@ -68,7 +68,7 @@
 
             <span class="card-title">Cancellation Rate</span>
 
-            <h2 id="cancelRate">0%</h2>
+            <h2 id="cancellation-rate">0%</h2>
 
             <span class="card-footer">Cancelled Orders</span>
 
@@ -96,7 +96,7 @@
 
         <section class="panel">
 
-            <div class="panel-header">
+            <div class="panel-header" id="loyalty-panel">
                 <h3>Top Loyalty Customers</h3>
             </div>
 
@@ -115,7 +115,7 @@
 
     <section class="panel">
 
-        <div class="panel-header">
+        <div class="panel-header" id="driver-panel">
             <h3>Driver Leaderboard</h3>
         </div>
 
@@ -153,8 +153,8 @@
     </div>
 
 </div>
-
-<script type="module" src="app.js"></script>
+<script src="api.js"></script>
+<script  src="app.js"></script>
 
 </body>
 </html>
